@@ -1,8 +1,14 @@
+"""
+Module providing core `minsp` functions and classes.
+"""
 
-import struct, bitstruct
 from enum import Enum
+import bitstruct
 
 class PacketType(int, Enum):
+    """
+    Class to represent space packet type: telemetry (TM) or telecommand (TC).
+    """
     TM = 0b0
     TC = 0b1
 
@@ -44,10 +50,10 @@ class SpacePacket:
         self.sequence_flags = sequence_flags
         self.sequence_count = sequence_count
         self.data_length = data_length
-    
+
         self.sec_hdr = sec_hdr
         self.payload = payload
-        
+
         # TODO: verify data length calculation
         if self.sec_hdr:
             self.sec_hdr_flag = 1
@@ -64,7 +70,8 @@ class SpacePacket:
         """
         primary_header = byte_stream[:6]
 
-        version, type, sec_hdr_flag, apid, sequence_flags, sequence_count, data_length = bitstruct.unpack('>u3u1u1u11u2u14u16', primary_header)
+        version, type, sec_hdr_flag, apid, sequence_flags, \
+            sequence_count, data_length = bitstruct.unpack('>u3u1u1u11u2u14u16', primary_header)
 
         if sec_hdr_flag == 1:
             sec_hdr = byte_stream[5:5+sec_hdr_len]  # FIXME
@@ -73,7 +80,15 @@ class SpacePacket:
             sec_hdr = b''
             payload = byte_stream[6:]
 
-        return cls(version=version, type=PacketType(type), sec_hdr_flag=sec_hdr_flag, apid=apid, sequence_flags=sequence_flags, sequence_count=sequence_count, data_length=data_length, sec_hdr=sec_hdr, payload=payload)
+        return cls(version = version,
+                   type = PacketType(type),
+                   sec_hdr_flag = sec_hdr_flag,
+                   apid = apid,
+                   sequence_flags = sequence_flags,
+                   sequence_count = sequence_count,
+                   data_length = data_length,
+                   sec_hdr = sec_hdr,
+                   payload = payload)
 
     def generate_primary_header(self):
         """
@@ -82,7 +97,14 @@ class SpacePacket:
         Returns:
         - (bytes): packet primary header (6 bytes).
         """
-        return bitstruct.pack('>u3u1u1u11u2u14u16', self.version, self.type.value, self.sec_hdr_flag, self.apid, self.sequence_flags, self.sequence_count, self.data_length)
+        return bitstruct.pack('>u3u1u1u11u2u14u16',
+                              self.version,
+                              self.type.value,
+                              self.sec_hdr_flag,
+                              self.apid,
+                              self.sequence_flags,
+                              self.sequence_count,
+                              self.data_length)
 
     def byte_stream(self):
         """
@@ -116,7 +138,7 @@ class SpacePacket:
         """
         String representation of the SpacePacket class.
         """
-        return f"SpacePacket(version={bin(self.version)}, type={self.type}, sec_hdr_flag={bin(self.sec_hdr_flag)}, " \
+        return f"SpacePacket(version={bin(self.version)}, type={self.type}, " \
+               f"sec_hdr_flag={bin(self.sec_hdr_flag)}, " \
                f"apid={self.apid}, sequence_flags={bin(self.sequence_flags)}, " \
                f"sequence_count={self.sequence_count}, data_length={self.data_length})"
-

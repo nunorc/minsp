@@ -1,3 +1,6 @@
+"""
+`minsp` __init__
+"""
 
 import logging
 
