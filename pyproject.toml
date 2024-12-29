@@ -11,6 +11,9 @@ python = "^3.10"
 bitstruct = "^8.19.0"
 pytest = "^8.3.4"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pylint = "^3.3.3"
 
 [build-system]
 requires = ["poetry-core"]
