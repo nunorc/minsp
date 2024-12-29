@@ -27,6 +27,9 @@ jobs:
           virtualenvs-in-project: true
       - name: Poetry install
         run: poetry install --no-interaction --with dev
+      - name: Poetry run pylint
+        run: |
+          poetry run pylint ./minsp --fail-under=10
       - name: Poetry run pytest
         run: |
           poetry run pytest -v
