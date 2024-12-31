@@ -3,15 +3,24 @@
 
 Minimalistic implementation of the Space Packet specification from the CCSDS Space Packet Protocol standard.
 
-[Repository](https://github.com/nunorc/minsp>) | [Documentation](https://nunorc.github.io/minsp)
+[Repository](https://github.com/nunorc/minsp) | [Documentation](https://nunorc.github.io/minsp)
 
 ## Installation
+
+Install using pip:
+
+```bash
+$ pip install minsp
+```
 
 Install package from the git repository:
 
 ```bash
 $ pip install git+https://github.com/nunorc/minsp@master
 ```
+
+**Note**: `minsp` depends on the `bitstruct` package that may require a C
+compiler to install.
 
 ## Quick Start
 
@@ -43,7 +52,8 @@ Packets can also be created from a byte stream:
 ```python
 >>> new_packet = SpacePacket.from_byte_stream(byte_stream)
 >>> new_packet
-SpacePacket(version=0b0, type=PacketType.TM, sec_hdr_flag=0b0, apid=11, sequence_flags=0b11, sequence_count=0, data_length=4)
+SpacePacket(version=0b0, type=PacketType.TM, sec_hdr_flag=0b0, apid=11,
+sequence_flags=0b11, sequence_count=0, data_length=4)
 >>> new_packet.payload
 b'hello'
 ```
