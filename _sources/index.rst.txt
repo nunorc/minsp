@@ -9,11 +9,20 @@ Minimalistic implementation of the Space Packet specification from the CCSDS Spa
 Installation
 -------------------------------------
 
+Install using pip:
+
+.. code-block:: bash
+
+   $ pip install minsp
+
 Install package from the git repository:
 
 .. code-block:: bash
 
     $ pip install git+https://github.com/nunorc/minsp@master
+
+**Note**: :code:`minsp` depends on the :code:`bitstruct` package that may require a C
+compiler to install.
 
 Quick Start
 -------------------------------------
