@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "minsp"
-version = "0.1.0"
+version = "0.0.1"
 description = "minimalistic implementation of the Space Packet specification from the CCSDS Space Packet Protocol standard"
 authors = ["Nuno Carvalho <narcarvalho@gmail.com>"]
-license = "iLICENSE.txt"
+license = "LICENSE.txt"
 readme = "README.md"
 
 [tool.poetry.dependencies]
