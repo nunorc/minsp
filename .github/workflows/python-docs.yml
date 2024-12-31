@@ -4,6 +4,9 @@ name: Python Docs
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build and deploy docs
