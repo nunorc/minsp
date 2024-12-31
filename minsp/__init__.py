@@ -1,5 +1,5 @@
 """
-`minsp` __init__
+The `minsp.__init__` module imports the core functions and classes from `minsp.core`.
 """
 
 import logging

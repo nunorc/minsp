@@ -1,5 +1,5 @@
 """
-Module providing core `minsp` functions and classes.
+The `minsp.core` module provides the package core functions and classes.
 """
 
 from enum import Enum
@@ -7,7 +7,11 @@ import bitstruct
 
 class PacketType(int, Enum):
     """
-    Class to represent space packet type: telemetry (TM) or telecommand (TC).
+    Enum to represent a space packet type: telemetry (TM) or telecommand (TC).
+
+    Attributes:
+        TM = 0
+        TC = 1
     """
     TM = 0b0
     TC = 0b1
@@ -16,16 +20,25 @@ class SpacePacket:
     """
     Class to represent a Space Packet.
 
-    Attributes:
-    - version (int): packet version (3 bits)
-    - type (PacketType): type of packet (PacketType enum: TM or TC) (1 bit)
-    - sec_hdr_flag (int): secondary header flag (1 bit)
-    - apid (int): application process identifier (11 bits)
-    - sequence_flags (int): sequence flags (2 bits)
-    - sequence_count (int): Sequence Count (14 bits)
-    - data_length (int): data length (16 bits)
-    - sec_hdr (bytes): secondary header
-    - payload (bytes): packet payload
+    :param version: Packet version, default is `0` (3 bits).
+    :type version: int
+    :param type: Packet type, default is `PacketType.TM` (1 bit).
+    :type type: PacketType
+    :param sec_hdr_flag: Secondary header flag, default is `0` (1 bit).
+    :type sec_hdr_flag: int
+    :param apid: Application process identifier, default is `0` (11 bits).
+    :type apid: int
+    :param sequence_flags: Sequence flags, default is `0b11` (2 bits).
+    :type sequence_flags: int
+    :param sequence_count: Sequence count, default is `0` (14 bits).
+    :type sequence_count: int
+    :param data_length: Payload data lenght, defauls is `0` (16 bits).
+    :param sec_hdr: Secondary header.
+    :type sec_hdr: bytes
+    :param payload: Packet payload.
+    :type payload: bytes
+
+    :raises ValueError: If `type` is not an instance of `PacketType`.
     """
     def __init__(self,
                  version: int = 0b00,
@@ -63,10 +76,15 @@ class SpacePacket:
     @classmethod
     def from_byte_stream(cls, byte_stream, sec_hdr_len=0):
         """
-        Generate a space packet from a byte stream.
+        Initialize a new `SpacePacket` object from a byte stream.
 
-        Returns:
-        - (SpacePacket): a new space packet.
+        :param byte_stream: byte stream
+        :type byte_stream: bytes
+        :param sec_hdr_len: secondary header lenght if present, default is `0`
+        :type sec_hdr_len: int
+
+        :return: a new `SpacePacket`
+        :rtype: SpacePacket
         """
         primary_header = byte_stream[:6]
 
@@ -92,10 +110,10 @@ class SpacePacket:
 
     def generate_primary_header(self):
         """
-        Generate the primary header of the packet.
+        Generate the primary header of a spacke packet.
 
-        Returns:
-        - (bytes): packet primary header (6 bytes).
+        :return: Space packet primary header.
+        :rtype: bytes
         """
         return bitstruct.pack('>u3u1u1u11u2u14u16',
                               self.version,
@@ -108,10 +126,10 @@ class SpacePacket:
 
     def byte_stream(self):
         """
-        Generate a full space packet as byte stream.
+        Generate a space packet as byte stream.
 
-        Returns:
-        - (bytes): a full space packet in bytes.
+        :return: Space packet bytes.
+        :rtype: bytes
         """
         primary_header = self.generate_primary_header()
 
@@ -126,8 +144,8 @@ class SpacePacket:
         """
         Set the payload of the packet.
 
-        Args:
-        - payload (bytes): The new payload data.
+        :param payload: Payload.
+        :type payload: bytes
         """
         self.payload = payload
 
@@ -137,6 +155,9 @@ class SpacePacket:
     def __repr__(self):
         """
         String representation of the SpacePacket class.
+
+        :return: String representation.
+        :rtype: str
         """
         return f"SpacePacket(version={bin(self.version)}, type={self.type}, " \
                f"sec_hdr_flag={bin(self.sec_hdr_flag)}, " \
