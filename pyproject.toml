@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "minsp"
-version = "0.0.1"
+version = "0.0.2"
 description = "minimalistic implementation of the Space Packet specification from the CCSDS Space Packet Protocol standard"
 authors = ["Nuno Carvalho <narcarvalho@gmail.com>"]
 license = "LICENSE.txt"
@@ -9,7 +9,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 bitstruct = "^8.19.0"
-pytest = "^8.3.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
