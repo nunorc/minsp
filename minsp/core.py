@@ -2,6 +2,7 @@
 The `minsp.core` module provides the package core functions and classes.
 """
 
+import warnings
 from enum import Enum
 import bitstruct
 
@@ -32,7 +33,7 @@ class SpacePacket:
     :type sequence_flags: int
     :param sequence_count: Sequence count, default is `0` (14 bits).
     :type sequence_count: int
-    :param data_length: Payload data lenght, defauls is `0` (16 bits).
+    :param data_length: Packet data field lenght, defauls is `0` (16 bits).
     :param sec_hdr: Secondary header.
     :type sec_hdr: bytes
     :param payload: Packet payload.
@@ -67,23 +68,28 @@ class SpacePacket:
         self.sec_hdr = sec_hdr
         self.payload = payload
 
-        # TODO: verify data length calculation
         if self.sec_hdr:
             self.sec_hdr_flag = 1
+
         if len(self.sec_hdr) > 0 or len(self.payload) > 0:
-            self.data_length = len(self.sec_hdr) + len(self.payload) - 1
+            self._calc_data_length()
+
+        if (len(self.sec_hdr) + len(self.payload)) > 65536:
+            warnings.warn('Packet data field size is larger that 65536, the standard maximum size.')
 
     @classmethod
     def from_byte_stream(cls, byte_stream, sec_hdr_len=0):
         """
         Initialize a new `SpacePacket` object from a byte stream.
 
-        :param byte_stream: byte stream
+        :param byte_stream: The byte stream.
         :type byte_stream: bytes
-        :param sec_hdr_len: secondary header lenght if present, default is `0`
+        :param sec_hdr_len: Secondary header lenght if present, default is `0`.
         :type sec_hdr_len: int
 
-        :return: a new `SpacePacket`
+        :raises ValueError: If secondary header flag bit is set but length is 0.
+
+        :return: A new `SpacePacket`.
         :rtype: SpacePacket
         """
         primary_header = byte_stream[:6]
@@ -92,8 +98,11 @@ class SpacePacket:
             sequence_count, data_length = bitstruct.unpack('>u3u1u1u11u2u14u16', primary_header)
 
         if sec_hdr_flag == 1:
-            sec_hdr = byte_stream[5:5+sec_hdr_len]  # FIXME
-            payload = byte_stream[5+sec_hdr_len:]   # FIXME
+            if sec_hdr_len == 0:
+                raise ValueError("Secondary header flag bit is set to 1, " \
+                    "but secondary header length is 0.")
+            sec_hdr = byte_stream[6:6+sec_hdr_len]
+            payload = byte_stream[6+sec_hdr_len:]
         else:
             sec_hdr = b''
             payload = byte_stream[6:]
@@ -107,6 +116,9 @@ class SpacePacket:
                    data_length = data_length,
                    sec_hdr = sec_hdr,
                    payload = payload)
+
+    def _calc_data_length(self):
+        self.data_length = len(self.sec_hdr) + len(self.payload) - 1
 
     def generate_primary_header(self):
         """
@@ -149,8 +161,7 @@ class SpacePacket:
         """
         self.payload = payload
 
-        # TODO: verify data length calculation
-        self.data_length = len(self.sec_hdr) + len(self.payload) - 1
+        self._calc_data_length()
 
     def __repr__(self):
         """
@@ -159,7 +170,7 @@ class SpacePacket:
         :return: String representation.
         :rtype: str
         """
-        return f"SpacePacket(version={bin(self.version)}, type={self.type}, " \
+        return f"SpacePacket(version={bin(self.version)}, type={str(self.type)}, " \
                f"sec_hdr_flag={bin(self.sec_hdr_flag)}, " \
                f"apid={self.apid}, sequence_flags={bin(self.sequence_flags)}, " \
                f"sequence_count={self.sequence_count}, data_length={self.data_length})"
