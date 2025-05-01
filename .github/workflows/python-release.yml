@@ -67,19 +67,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.11"
-      - uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-      - name: Install dependencies
-        run: poetry install --sync --no-interaction
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Set up Python
+        run: uv python install
       - name: Build source and wheel distribution
         run: |
-          poetry build
+          uv build
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:

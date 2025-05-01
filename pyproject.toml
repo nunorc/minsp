@@ -1,25 +1,30 @@
-[tool.poetry]
+[project]
 name = "minsp"
 version = "0.0.2"
 description = "minimalistic implementation of the Space Packet specification from the CCSDS Space Packet Protocol standard"
-authors = ["Nuno Carvalho <narcarvalho@gmail.com>"]
-license = "LICENSE.txt"
+authors = [{ name = "Nuno Carvalho", email = "narcarvalho@gmail.com" }]
+requires-python = "~=3.10"
 readme = "README.md"
+license-files = ["LICENSE.txt"]
+dependencies = ["bitstruct>=8.19.0,<9"]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-bitstruct = "^8.19.0"
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4,<9",
+    "pylint>=3.3.3,<4",
+]
+docs = [
+    "sphinx>=8.1.3,<9",
+    "sphinx-autobuild>=2024.10.3,<2025",
+    "sphinx-rtd-theme>=3.0.2,<4",
+]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
-pylint = "^3.3.3"
-
-
-[tool.poetry.group.docs.dependencies]
-sphinx = "^8.1.3"
-sphinx-autobuild = "^2024.10.3"
-sphinx-rtd-theme = "^3.0.2"
+[tool.uv]
+default-groups = [
+    "dev",
+    "docs",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -8,28 +8,22 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-docs:
     name: Build and deploy docs
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.11"
-      - uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-      - name: Poetry install
-        run: poetry install --no-interaction --with docs
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Set up Python
+        run: uv python install
       - name: Build docs
         run: |
           mkdir gh-pages
           touch gh-pages/.nojekyll
           cd docs/source/
-          poetry run sphinx-build -b html . _build
+          uv run sphinx-build -b html . _build
           cp -r _build/* ../../gh-pages/
       - name: Deploy docs
         uses: JamesIves/github-pages-deploy-action@4.1.4
