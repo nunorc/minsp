@@ -1,0 +1,7 @@
+minsp.pus module
+================
+
+.. automodule:: minsp.pus
+   :members:
+   :show-inheritance:
+   :undoc-members:

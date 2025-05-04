@@ -1,0 +1,18 @@
+minsp package
+=============
+
+.. automodule:: minsp
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   minsp.core
+   minsp.mo
+   minsp.pus
+   minsp.utils

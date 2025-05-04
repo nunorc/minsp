@@ -1,0 +1,7 @@
+minsp.core module
+=================
+
+.. automodule:: minsp.core
+   :members:
+   :show-inheritance:
+   :undoc-members:
