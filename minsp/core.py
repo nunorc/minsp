@@ -2,9 +2,12 @@
 The `minsp.core` module provides the package core functions and classes.
 """
 
-import warnings
+from dataclasses import dataclass
 from enum import Enum
-import bitstruct
+import struct
+
+from .pus import PUSHeader
+from .mo import MALHeader
 
 class PacketType(int, Enum):
     """
@@ -17,160 +20,160 @@ class PacketType(int, Enum):
     TM = 0b0
     TC = 0b1
 
+@dataclass
 class SpacePacket:
     """
-    Class to represent a Space Packet.
+    Represents a CCSDS Space Packet (including primary header, optional secondary
+    header, and data field).
+
+    According to the CCSDS standard:
+    * The primary header is 6 bytes long and contains version, packet type, APID,
+    sequence info, and length.
+    * The secondary header can be an custom stream of bytes, and instance of `PUSheader`
+    or an instance of `MALHeader`.
+    * The data length field (data_length) defines the number of bytes after the primary
+    header minus one.
+    * This class allows serialization to and from byte streams.
 
     :param version: Packet version, default is `0` (3 bits).
     :type version: int
     :param type: Packet type, default is `PacketType.TM` (1 bit).
     :type type: PacketType
-    :param sec_hdr_flag: Secondary header flag, default is `0` (1 bit).
-    :type sec_hdr_flag: int
+    :param secondary_header_flag: Secondary header flag, default is `0` (1 bit).
+    :type secondary_header_flag: int
     :param apid: Application process identifier, default is `0` (11 bits).
     :type apid: int
     :param sequence_flags: Sequence flags, default is `0b11` (2 bits).
     :type sequence_flags: int
     :param sequence_count: Sequence count, default is `0` (14 bits).
     :type sequence_count: int
-    :param data_length: Packet data field lenght, defauls is `0` (16 bits).
-    :param sec_hdr: Secondary header.
-    :type sec_hdr: bytes
-    :param payload: Packet payload.
-    :type payload: bytes
-
-    :raises ValueError: If `type` is not an instance of `PacketType`.
+    :param data_length: Packet data field length of the data following
+    the primary header minus one, defaults is `0` (16 bits).
+    :param secondary_header: Secondary header.
+    :type secondary_header: bytes|`PUSHeader`|`MALHeader`
+    :param data_field: Packet data.
+    :type data_field: bytes
     """
-    def __init__(self,
-                 version: int = 0b00,
-                 type: PacketType = PacketType.TM,
-                 sec_hdr_flag: int = 0,
-                 apid: int = 0,
-                 sequence_flags: int = 0b11,
-                 sequence_count: int = 0,
-                 data_length: int = 0,
+    version: int = 0
+    type: PacketType = PacketType.TM
+    secondary_header_flag: int = 0
+    apid: int = 0
+    sequence_flags: int = 0b11
+    sequence_count: int = 0
+    data_length: int = 0
 
-                 sec_hdr: bytes = b'',
-                 payload: bytes = b'',
-            ) -> None:
+    secondary_header: bytes|PUSHeader|MALHeader = b''
+    data_field: bytes = b''
 
-        if not isinstance(type, PacketType):
-            raise ValueError("Invalid packet type, must be an instance of PacketType Enum")
+    def __post_init__(self):
 
-        self.version = version
-        self.type = type
-        self.sec_hdr_flag = sec_hdr_flag
-        self.apid = apid
-        self.sequence_flags = sequence_flags
-        self.sequence_count = sequence_count
-        self.data_length = data_length
-
-        self.sec_hdr = sec_hdr
-        self.payload = payload
-
-        if self.sec_hdr:
-            self.sec_hdr_flag = 1
-
-        if len(self.sec_hdr) > 0 or len(self.payload) > 0:
-            self._calc_data_length()
-
-        if (len(self.sec_hdr) + len(self.payload)) > 65536:
-            warnings.warn('Packet data field size is larger that 65536, the standard maximum size.')
-
-    @classmethod
-    def from_byte_stream(cls, byte_stream, sec_hdr_len=0):
-        """
-        Initialize a new `SpacePacket` object from a byte stream.
-
-        :param byte_stream: The byte stream.
-        :type byte_stream: bytes
-        :param sec_hdr_len: Secondary header lenght if present, default is `0`.
-        :type sec_hdr_len: int
-
-        :raises ValueError: If secondary header flag bit is set but length is 0.
-
-        :return: A new `SpacePacket`.
-        :rtype: SpacePacket
-        """
-        primary_header = byte_stream[:6]
-
-        version, type, sec_hdr_flag, apid, sequence_flags, \
-            sequence_count, data_length = bitstruct.unpack('>u3u1u1u11u2u14u16', primary_header)
-
-        if sec_hdr_flag == 1:
-            if sec_hdr_len == 0:
-                raise ValueError("Secondary header flag bit is set to 1, " \
-                    "but secondary header length is 0.")
-            sec_hdr = byte_stream[6:6+sec_hdr_len]
-            payload = byte_stream[6+sec_hdr_len:]
+        # update data length
+        size = 0
+        if isinstance(self.secondary_header, (PUSHeader, MALHeader)):
+            size += len(self.secondary_header.as_bytes())
         else:
-            sec_hdr = b''
-            payload = byte_stream[6:]
+            size += len(self.secondary_header)
 
-        return cls(version = version,
-                   type = PacketType(type),
-                   sec_hdr_flag = sec_hdr_flag,
-                   apid = apid,
-                   sequence_flags = sequence_flags,
-                   sequence_count = sequence_count,
-                   data_length = data_length,
-                   sec_hdr = sec_hdr,
-                   payload = payload)
+        self.data_length = size + len(self.data_field) - 1
 
-    def _calc_data_length(self):
-        self.data_length = len(self.sec_hdr) + len(self.payload) - 1
+        # update secondary header flag
+        if self.secondary_header:
+            self.secondary_header_flag = 1
 
-    def generate_primary_header(self):
+    def as_bytes(self) -> bytes:
         """
-        Generate the primary header of a spacke packet.
-
-        :return: Space packet primary header.
-        :rtype: bytes
-        """
-        return bitstruct.pack('>u3u1u1u11u2u14u16',
-                              self.version,
-                              self.type.value,
-                              self.sec_hdr_flag,
-                              self.apid,
-                              self.sequence_flags,
-                              self.sequence_count,
-                              self.data_length)
-
-    def byte_stream(self):
-        """
-        Generate a space packet as byte stream.
+        Packs the space packet into a byte stream, including:
+        - Primary header (6 bytes)
+        - Optional secondary header
+        - Data field
 
         :return: Space packet bytes.
         :rtype: bytes
         """
-        primary_header = self.generate_primary_header()
-
-        if self.sec_hdr_flag == 1:
-            packet = primary_header + self.sec_hdr + self.payload
+        if isinstance(self.secondary_header, bytes):
+            sec_hdr = self.secondary_header
+        elif isinstance(self.secondary_header, PUSHeader):
+            sec_hdr = self.secondary_header.as_bytes()
+        elif isinstance(self.secondary_header, MALHeader):
+            sec_hdr = self.secondary_header.as_bytes()
         else:
-            packet = primary_header + self.payload
+            sec_hdr = b''
 
-        return packet
+        payload = sec_hdr + self.data_field
+        self.data_length = len(payload) - 1
+        if self.data_length <= 0:
+            raise ValueError("Can't generate packet as bytes, data length is 0 or negative.")
 
-    def set_payload(self, payload):
+        first_word = ((self.version & 0x07) << 13) | \
+                     ((self.type & 0x01) << 12) | \
+                     ((self.secondary_header_flag & 0x01) << 11) | \
+                     (self.apid & 0x07FF)
+        second_word = ((self.sequence_flags & 0x03) << 14) | (self.sequence_count & 0x3FFF)
+
+        header = struct.pack(">HHH", first_word, second_word, self.data_length)
+
+        return header + payload
+
+
+    @classmethod
+    def from_bytes(cls, data: bytes, secondary_header_length: int = 0, \
+        pus: bool = False, mal: bool = False) -> "SpacePacket":
         """
-        Set the payload of the packet.
+        Unpacks a byte stream into a `SpacePacket` instance.
 
-        :param payload: Payload.
-        :type payload: bytes
+        :param data: The byte stream.
+        :type data: bytes
+        :param secondary_header_length: Secondary header length if present, default is `0`.
+        :type secondary_header_length: int
+        :param pus: Secondary header is a PUS header.
+        :type pus: bool
+        :param pus: Secondary header is a MAL header.
+        :type pus: bool
+
+        :raises ValueError: Insufficient data for space packet primary header.
+        :raises ValueError: Secondary header flag bit is set to 1, but secondary header length is 0.
+
+        :return: A new `SpacePacket`.
+        :rtype: SpacePacket
         """
-        self.payload = payload
+        if len(data) < 6:
+            raise ValueError("Insufficient data for space packet primary header.")
 
-        self._calc_data_length()
+        first_word, second_word, pkt_length = struct.unpack(">HHH", data[:6])
 
-    def __repr__(self):
-        """
-        String representation of the SpacePacket class.
+        version = (first_word >> 13) & 0x07
+        pkt_type = (first_word >> 12) & 0x01
+        sec_hdr_flag = (first_word >> 11) & 0x01
+        apid = first_word & 0x07FF
+        seq_flags = (second_word >> 14) & 0x03
+        seq_count = second_word & 0x3FFF
 
-        :return: String representation.
-        :rtype: str
-        """
-        return f"SpacePacket(version={bin(self.version)}, type={str(self.type)}, " \
-               f"sec_hdr_flag={bin(self.sec_hdr_flag)}, " \
-               f"apid={self.apid}, sequence_flags={bin(self.sequence_flags)}, " \
-               f"sequence_count={self.sequence_count}, data_length={self.data_length})"
+        if sec_hdr_flag == 1:
+            if pus:
+                sec_hdr = PUSHeader.from_bytes(data[6:])
+                data_field = data[6+len(sec_hdr.as_bytes()):]
+            elif mal:
+                sec_hdr = MALHeader.from_bytes(data[6:])
+                data_field =data[6+len(sec_hdr.as_bytes()):]
+            else:
+                if secondary_header_length == 0:
+                    raise ValueError("Secondary header flag bit is set to 1, \
+                                     but secondary header length is 0.")
+                else:
+                    sec_hdr = data[6:6+secondary_header_length]
+                    data_field = data[6+secondary_header_length:]
+        else:
+            sec_hdr = b''
+            data_field = data[6:]
+
+        return cls(
+            version=version,
+            type=pkt_type,
+            secondary_header_flag=sec_hdr_flag,
+            apid=apid,
+            sequence_flags=seq_flags,
+            sequence_count=seq_count,
+            secondary_header=sec_hdr,
+            data_length=pkt_length,
+            data_field=data_field
+        )
