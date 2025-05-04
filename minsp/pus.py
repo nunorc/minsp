@@ -55,6 +55,7 @@ class PUSHeader:
         header = struct.pack(">BBBB",
                             first_byte, self.service_type, self.service_subtype, self.source_id)
 
+        # pylint: disable=R1705
         if self.has_time:
             if self.cuc_time:
                 return header + self.cuc_time

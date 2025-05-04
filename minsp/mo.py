@@ -180,6 +180,7 @@ class MALHeader:
         return b"".join(parts)
 
 
+    # pylint: disable=R0914,R0912,R0915
     @classmethod
     def from_bytes(cls, data:bytes, sequence_flag:int = 3):
         """

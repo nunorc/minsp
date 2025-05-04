@@ -115,6 +115,7 @@ class SpacePacket:
         return header + payload
 
 
+    # pylint: disable=R0914,R1720
     @classmethod
     def from_bytes(cls, data: bytes, secondary_header_length: int = 0, \
         pus: bool = False, mal: bool = False) -> "SpacePacket":
