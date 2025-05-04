@@ -22,7 +22,9 @@ jobs:
         run: |
           mkdir gh-pages
           touch gh-pages/.nojekyll
-          cd docs/source/
+          cd docs/
+          uv run sphinx-apidoc -o source/ ../minsp --force --module-first --separate
+          cd source/
           uv run sphinx-build -b html . _build
           cp -r _build/* ../../gh-pages/
       - name: Deploy docs

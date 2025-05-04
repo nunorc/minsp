@@ -3,7 +3,7 @@ import os, sys
 sys.path.insert(0, os.path.abspath('../..'))
 
 project = 'minsp'
-copyright = '2024, Nuno Carvalho'
+copyright = '2024-2025, Nuno Carvalho'
 author = 'Nuno Carvalho'
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon' ]
