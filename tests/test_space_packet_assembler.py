@@ -9,7 +9,7 @@ def test_new_space_packet_assembler():
     space_packet_assembler = SpacePacketAssembler()
 
     assert space_packet_assembler.buffer == b''
-    assert space_packet_assembler.reassembling == False
+    assert not space_packet_assembler.reassembling
 
 def test_space_packet_assembler_process():
     space_packet_assembler = SpacePacketAssembler()
