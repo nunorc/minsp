@@ -114,8 +114,7 @@ class SpacePacket:
 
         return header + payload
 
-
-    # pylint: disable=R0914,R1720
+    # pylint: disable=R1720
     @classmethod
     def from_bytes(cls, data: bytes, secondary_header_length: int = 0, \
         pus: bool = False, mal: bool = False) -> "SpacePacket":
@@ -140,41 +139,63 @@ class SpacePacket:
         if len(data) < 6:
             raise ValueError("Insufficient data for space packet primary header.")
 
-        first_word, second_word, pkt_length = struct.unpack(">HHH", data[:6])
+        header = cls.header_from_bytes(data[:6])
 
-        version = (first_word >> 13) & 0x07
-        pkt_type = (first_word >> 12) & 0x01
-        sec_hdr_flag = (first_word >> 11) & 0x01
-        apid = first_word & 0x07FF
-        seq_flags = (second_word >> 14) & 0x03
-        seq_count = second_word & 0x3FFF
-
-        if sec_hdr_flag == 1:
+        if header["secondary_header_flag"] == 1:
             if pus:
-                sec_hdr = PUSHeader.from_bytes(data[6:])
-                data_field = data[6+len(sec_hdr.as_bytes()):]
+                secondary_header = PUSHeader.from_bytes(data[6:])
+                data_field = data[6+len(secondary_header.as_bytes()):]
             elif mal:
-                sec_hdr = MALHeader.from_bytes(data[6:])
-                data_field =data[6+len(sec_hdr.as_bytes()):]
+                secondary_header = MALHeader.from_bytes(data[6:])
+                data_field =data[6+len(secondary_header.as_bytes()):]
             else:
                 if secondary_header_length == 0:
                     raise ValueError("Secondary header flag bit is set to 1, \
                                      but secondary header length is 0.")
                 else:
-                    sec_hdr = data[6:6+secondary_header_length]
+                    secondary_header = data[6:6+secondary_header_length]
                     data_field = data[6+secondary_header_length:]
         else:
-            sec_hdr = b''
+            secondary_header = b''
             data_field = data[6:]
 
         return cls(
-            version=version,
-            type=pkt_type,
-            secondary_header_flag=sec_hdr_flag,
-            apid=apid,
-            sequence_flags=seq_flags,
-            sequence_count=seq_count,
-            secondary_header=sec_hdr,
-            data_length=pkt_length,
+            version=header["version"],
+            type=header["type"],
+            secondary_header_flag=header["secondary_header_flag"],
+            apid=header["apid"],
+            sequence_flags=header["sequence_flags"],
+            sequence_count=header["sequence_count"],
+            secondary_header=secondary_header,
+            data_length=header["data_length"],
             data_field=data_field
         )
+
+    @classmethod
+    def header_from_bytes(cls, data: bytes) -> dict:
+        """
+        Unpacks a space packt header from a byte.
+
+        :param data: The byte stream.
+        :type data: bytes
+
+        :raises ValueError: Insufficient data for space packet primary header.
+
+        :return: A new `dict`.
+        :rtype: dict
+        """
+        if len(data) < 6:
+            raise ValueError("Insufficient data for space packet primary header.")
+
+        first_word, second_word, pkt_length = struct.unpack(">HHH", data[:6])
+
+        header = {}
+        header["version"] = (first_word >> 13) & 0x07
+        header["type"] = (first_word >> 12) & 0x01
+        header["secondary_header_flag"] = (first_word >> 11) & 0x01
+        header["apid"] = first_word & 0x07FF
+        header["sequence_flags"] = (second_word >> 14) & 0x03
+        header["sequence_count"] = second_word & 0x3FFF
+        header["data_length"] = pkt_length
+
+        return header
