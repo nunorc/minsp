@@ -52,6 +52,38 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">minsp</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">minsp package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#minsp.PacketType"><code class="docutils literal notranslate"><span class="pre">PacketType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.PacketType.TC"><code class="docutils literal notranslate"><span class="pre">PacketType.TC</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.PacketType.TM"><code class="docutils literal notranslate"><span class="pre">PacketType.TM</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minsp.SequenceFlags"><code class="docutils literal notranslate"><span class="pre">SequenceFlags</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SequenceFlags.CONTINUATION"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.CONTINUATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SequenceFlags.FIRST"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.FIRST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SequenceFlags.LAST"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.LAST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SequenceFlags.UNSEGMENTED"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.UNSEGMENTED</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minsp.SpacePacket"><code class="docutils literal notranslate"><span class="pre">SpacePacket</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.apid"><code class="docutils literal notranslate"><span class="pre">SpacePacket.apid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.as_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.as_bytes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.data_field"><code class="docutils literal notranslate"><span class="pre">SpacePacket.data_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.data_length"><code class="docutils literal notranslate"><span class="pre">SpacePacket.data_length</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.from_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.from_bytes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.header_from_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.header_from_bytes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.secondary_header"><code class="docutils literal notranslate"><span class="pre">SpacePacket.secondary_header</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.secondary_header_flag"><code class="docutils literal notranslate"><span class="pre">SpacePacket.secondary_header_flag</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.sequence_count"><code class="docutils literal notranslate"><span class="pre">SpacePacket.sequence_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.sequence_flags"><code class="docutils literal notranslate"><span class="pre">SpacePacket.sequence_flags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.type"><code class="docutils literal notranslate"><span class="pre">SpacePacket.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacket.version"><code class="docutils literal notranslate"><span class="pre">SpacePacket.version</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minsp.SpacePacketAssembler"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacketAssembler.from_packets"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler.from_packets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minsp.SpacePacketAssembler.process_packet"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler.process_packet()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="minsp.core.html">minsp.core module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="minsp.mo.html">minsp.mo module</a></li>
@@ -93,6 +125,268 @@
   <section id="module-minsp">
 <span id="minsp-package"></span><h1>minsp package<a class="headerlink" href="#module-minsp" title="Link to this heading"></a></h1>
 <p>The <cite>minsp.__init__</cite> module imports the core functions and classes from <cite>minsp.core</cite>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="minsp.PacketType">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minsp.</span></span><span class="sig-name descname"><span class="pre">PacketType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minsp.PacketType" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enum to represent a space packet type: telemetry (TM) or telecommand (TC).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">TM</span> <span class="pre">=</span> <span class="pre">0</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">TC</span> <span class="pre">=</span> <span class="pre">1</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.PacketType.TC">
+<span class="sig-name descname"><span class="pre">TC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#minsp.PacketType.TC" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.PacketType.TM">
+<span class="sig-name descname"><span class="pre">TM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minsp.PacketType.TM" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minsp.SequenceFlags">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minsp.</span></span><span class="sig-name descname"><span class="pre">SequenceFlags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minsp.SequenceFlags" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enum to represent the sequece flags of a space packet.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">CONTINUATION</span> <span class="pre">=</span> <span class="pre">0</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">FIRST</span> <span class="pre">=</span> <span class="pre">1</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">LAST</span> <span class="pre">=</span> <span class="pre">2</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">UNSEGMENTED</span> <span class="pre">=</span> <span class="pre">3</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SequenceFlags.CONTINUATION">
+<span class="sig-name descname"><span class="pre">CONTINUATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minsp.SequenceFlags.CONTINUATION" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SequenceFlags.FIRST">
+<span class="sig-name descname"><span class="pre">FIRST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#minsp.SequenceFlags.FIRST" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SequenceFlags.LAST">
+<span class="sig-name descname"><span class="pre">LAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#minsp.SequenceFlags.LAST" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SequenceFlags.UNSEGMENTED">
+<span class="sig-name descname"><span class="pre">UNSEGMENTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#minsp.SequenceFlags.UNSEGMENTED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minsp.SpacePacket">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minsp.</span></span><span class="sig-name descname"><span class="pre">SpacePacket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="minsp.core.html#minsp.core.PacketType" title="minsp.core.PacketType"><span class="pre">PacketType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PacketType.TM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_header_flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence_flags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="minsp.core.html#minsp.core.SequenceFlags" title="minsp.core.SequenceFlags"><span class="pre">SequenceFlags</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SequenceFlags.UNSEGMENTED</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="minsp.pus.html#minsp.pus.PUSHeader" title="minsp.pus.PUSHeader"><span class="pre">PUSHeader</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="minsp.mo.html#minsp.mo.MALHeader" title="minsp.mo.MALHeader"><span class="pre">MALHeader</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">b''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">b''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minsp.SpacePacket" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a CCSDS Space Packet (including primary header, optional secondary
+header, and data field).</p>
+<p>According to the CCSDS standard:
+* The primary header is 6 bytes long and contains version, packet type, APID,
+sequence info, and length.
+* The secondary header can be an custom stream of bytes, and instance of <cite>PUSheader</cite>
+or an instance of <cite>MALHeader</cite>.
+* The data length field (data_length) defines the number of bytes after the primary
+header minus one.
+* This class allows serialization to and from byte streams.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>version</strong> (<em>int</em>) – Packet version, default is <cite>0</cite> (3 bits).</p></li>
+<li><p><strong>type</strong> (<a class="reference internal" href="#minsp.PacketType" title="minsp.PacketType"><em>PacketType</em></a>) – Packet type, default is <cite>PacketType.TM</cite> (1 bit).</p></li>
+<li><p><strong>secondary_header_flag</strong> (<em>int</em>) – Secondary header flag, default is <cite>0</cite> (1 bit).</p></li>
+<li><p><strong>apid</strong> (<em>int</em>) – Application process identifier, default is <cite>0</cite> (11 bits).</p></li>
+<li><p><strong>sequence_flags</strong> (<em>SequenceFlag</em>) – Sequence flags, default is <cite>SequenceFlag.UNSEGMENTED</cite> (2 bits).</p></li>
+<li><p><strong>sequence_count</strong> (<em>int</em>) – Sequence count, default is <cite>0</cite> (14 bits).</p></li>
+<li><p><strong>data_length</strong> – Packet data field length of the data following</p></li>
+</ul>
+</dd>
+</dl>
+<p>the primary header minus one, defaults is <cite>0</cite> (16 bits).
+:param secondary_header: Secondary header.
+:type secondary_header: bytes|`PUSHeader`|`MALHeader`
+:param data_field: Packet data.
+:type data_field: bytes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SpacePacket.apid">
+<span class="sig-name descname"><span class="pre">apid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minsp.SpacePacket.apid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minsp.SpacePacket.as_bytes">
+<span class="sig-name descname"><span class="pre">as_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="headerlink" href="#minsp.SpacePacket.as_bytes" title="Link to this definition"></a></dt>
+<dd><p>Packs the space packet into a byte stream, including:
+- Primary header (6 bytes)
+- Optional secondary header
+- Data field</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Space packet bytes.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SpacePacket.data_field">
+<span class="sig-name descname"><span class="pre">data_field</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bytes</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">b''</span></em><a class="headerlink" href="#minsp.SpacePacket.data_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SpacePacket.data_length">
+<span class="sig-name descname"><span class="pre">data_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minsp.SpacePacket.data_length" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minsp.SpacePacket.from_bytes">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_header_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket" title="minsp.core.SpacePacket"><span class="pre">SpacePacket</span></a></span></span><a class="headerlink" href="#minsp.SpacePacket.from_bytes" title="Link to this definition"></a></dt>
+<dd><p>Unpacks a byte stream into a <cite>SpacePacket</cite> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>bytes</em>) – The byte stream.</p></li>
+<li><p><strong>secondary_header_length</strong> (<em>int</em>) – Secondary header length if present, default is <cite>0</cite>.</p></li>
+<li><p><strong>pus</strong> (<em>bool</em>) – Secondary header is a PUS header.</p></li>
+<li><p><strong>pus</strong> – Secondary header is a MAL header.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Insufficient data for space packet primary header.</p></li>
+<li><p><strong>ValueError</strong> – Secondary header flag bit is set to 1, but secondary header length is 0.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A new <cite>SpacePacket</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#minsp.SpacePacket" title="minsp.SpacePacket">SpacePacket</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minsp.SpacePacket.header_from_bytes">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">header_from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#minsp.SpacePacket.header_from_bytes" title="Link to this definition"></a></dt>
+<dd><p>Unpacks a space packt header from a byte.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – The byte stream.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Insufficient data for space packet primary header.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A new <cite>dict</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SpacePacket.secondary_header">
+<span class="sig-name descname"><span class="pre">secondary_header</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="minsp.pus.html#minsp.pus.PUSHeader" title="minsp.pus.PUSHeader"><span class="pre">PUSHeader</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="minsp.mo.html#minsp.mo.MALHeader" title="minsp.mo.MALHeader"><span class="pre">MALHeader</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">b''</span></em><a class="headerlink" href="#minsp.SpacePacket.secondary_header" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SpacePacket.secondary_header_flag">
+<span class="sig-name descname"><span class="pre">secondary_header_flag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minsp.SpacePacket.secondary_header_flag" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SpacePacket.sequence_count">
+<span class="sig-name descname"><span class="pre">sequence_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minsp.SpacePacket.sequence_count" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SpacePacket.sequence_flags">
+<span class="sig-name descname"><span class="pre">sequence_flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="minsp.core.html#minsp.core.SequenceFlags" title="minsp.core.SequenceFlags"><span class="pre">SequenceFlags</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#minsp.SpacePacket.sequence_flags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SpacePacket.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="minsp.core.html#minsp.core.PacketType" title="minsp.core.PacketType"><span class="pre">PacketType</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minsp.SpacePacket.type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minsp.SpacePacket.version">
+<span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minsp.SpacePacket.version" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minsp.SpacePacketAssembler">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minsp.</span></span><span class="sig-name descname"><span class="pre">SpacePacketAssembler</span></span><a class="headerlink" href="#minsp.SpacePacketAssembler" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Assembles the payload from segmented space packets.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="minsp.SpacePacketAssembler.from_packets">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_packets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket" title="minsp.core.SpacePacket"><span class="pre">SpacePacket</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#minsp.SpacePacketAssembler.from_packets" title="Link to this definition"></a></dt>
+<dd><p>Assembles the payload from segmented space packets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>packets</strong> (<em>list</em><em>[</em><a class="reference internal" href="#minsp.SpacePacket" title="minsp.SpacePacket"><em>SpacePacket</em></a><em>]</em>) – A list of <cite>SpacePacket</cite>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The payload.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minsp.SpacePacketAssembler.process_packet">
+<span class="sig-name descname"><span class="pre">process_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket" title="minsp.core.SpacePacket"><span class="pre">SpacePacket</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#minsp.SpacePacketAssembler.process_packet" title="Link to this definition"></a></dt>
+<dd><p>Process a individual space packet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – Continuation received without first segment.</p></li>
+<li><p><strong>RuntimeError</strong> – Last segment received without segment.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional payload found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
@@ -103,18 +397,31 @@
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.PacketType.TM"><code class="docutils literal notranslate"><span class="pre">PacketType.TM</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="minsp.core.html#minsp.core.SequenceFlags"><code class="docutils literal notranslate"><span class="pre">SequenceFlags</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SequenceFlags.CONTINUATION"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.CONTINUATION</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SequenceFlags.FIRST"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.FIRST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SequenceFlags.LAST"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.LAST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SequenceFlags.UNSEGMENTED"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.UNSEGMENTED</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket"><code class="docutils literal notranslate"><span class="pre">SpacePacket</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.apid"><code class="docutils literal notranslate"><span class="pre">SpacePacket.apid</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.as_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.as_bytes()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.data_field"><code class="docutils literal notranslate"><span class="pre">SpacePacket.data_field</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.data_length"><code class="docutils literal notranslate"><span class="pre">SpacePacket.data_length</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.from_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.from_bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.header_from_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.header_from_bytes()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.secondary_header"><code class="docutils literal notranslate"><span class="pre">SpacePacket.secondary_header</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.secondary_header_flag"><code class="docutils literal notranslate"><span class="pre">SpacePacket.secondary_header_flag</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.sequence_count"><code class="docutils literal notranslate"><span class="pre">SpacePacket.sequence_count</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.sequence_flags"><code class="docutils literal notranslate"><span class="pre">SpacePacket.sequence_flags</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.type"><code class="docutils literal notranslate"><span class="pre">SpacePacket.type</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacket.version"><code class="docutils literal notranslate"><span class="pre">SpacePacket.version</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacketAssembler"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacketAssembler.from_packets"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler.from_packets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minsp.core.html#minsp.core.SpacePacketAssembler.process_packet"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler.process_packet()</span></code></a></li>
 </ul>
 </li>
 </ul>

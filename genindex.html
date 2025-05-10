@@ -83,6 +83,7 @@
  | <a href="#F"><strong>F</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
@@ -90,6 +91,7 @@
  | <a href="#Q"><strong>Q</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
  
 </div>
@@ -99,7 +101,11 @@
       <li><a href="minsp.pus.html#minsp.pus.PUSHeader.ack">ack (minsp.pus.PUSHeader attribute)</a>
 </li>
       <li><a href="minsp.core.html#minsp.core.SpacePacket.apid">apid (minsp.core.SpacePacket attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SpacePacket.apid">(minsp.SpacePacket attribute)</a>
 </li>
+      </ul></li>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.area_version">area_version (minsp.mo.MALHeader attribute)</a>
 </li>
       <li><a href="minsp.core.html#minsp.core.SpacePacket.as_bytes">as_bytes() (minsp.core.SpacePacket method)</a>
@@ -108,6 +114,8 @@
         <li><a href="minsp.mo.html#minsp.mo.MALHeader.as_bytes">(minsp.mo.MALHeader method)</a>
 </li>
         <li><a href="minsp.pus.html#minsp.pus.PUSHeader.as_bytes">(minsp.pus.PUSHeader method)</a>
+</li>
+        <li><a href="minsp.html#minsp.SpacePacket.as_bytes">(minsp.SpacePacket method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -122,10 +130,16 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="minsp.utils.html#minsp.utils.cuc_as_datetime">cuc_as_datetime() (in module minsp.utils)</a>
+      <li><a href="minsp.core.html#minsp.core.SequenceFlags.CONTINUATION">CONTINUATION (minsp.core.SequenceFlags attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SequenceFlags.CONTINUATION">(minsp.SequenceFlags attribute)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="minsp.utils.html#minsp.utils.cuc_as_datetime">cuc_as_datetime() (in module minsp.utils)</a>
+</li>
       <li><a href="minsp.pus.html#minsp.pus.PUSHeader.cuc_time">cuc_time (minsp.pus.PUSHeader attribute)</a>
 </li>
       <li><a href="minsp.utils.html#minsp.utils.cuc_time_now">cuc_time_now() (in module minsp.utils)</a>
@@ -137,13 +151,21 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="minsp.core.html#minsp.core.SpacePacket.data_field">data_field (minsp.core.SpacePacket attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SpacePacket.data_field">(minsp.SpacePacket attribute)</a>
 </li>
+      </ul></li>
       <li><a href="minsp.core.html#minsp.core.SpacePacket.data_length">data_length (minsp.core.SpacePacket attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SpacePacket.data_length">(minsp.SpacePacket attribute)</a>
 </li>
-      <li><a href="minsp.mo.html#minsp.mo.MALHeader.destination_id">destination_id (minsp.mo.MALHeader attribute)</a>
-</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="minsp.mo.html#minsp.mo.MALHeader.destination_id">destination_id (minsp.mo.MALHeader attribute)</a>
+</li>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.destination_id_flag">destination_id_flag (minsp.mo.MALHeader attribute)</a>
 </li>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.domain">domain (minsp.mo.MALHeader attribute)</a>
@@ -156,12 +178,28 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="minsp.core.html#minsp.core.SequenceFlags.FIRST">FIRST (minsp.core.SequenceFlags attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SequenceFlags.FIRST">(minsp.SequenceFlags attribute)</a>
+</li>
+      </ul></li>
       <li><a href="minsp.core.html#minsp.core.SpacePacket.from_bytes">from_bytes() (minsp.core.SpacePacket class method)</a>
 
       <ul>
         <li><a href="minsp.mo.html#minsp.mo.MALHeader.from_bytes">(minsp.mo.MALHeader class method)</a>
 </li>
         <li><a href="minsp.pus.html#minsp.pus.PUSHeader.from_bytes">(minsp.pus.PUSHeader class method)</a>
+</li>
+        <li><a href="minsp.html#minsp.SpacePacket.from_bytes">(minsp.SpacePacket class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="minsp.core.html#minsp.core.SpacePacketAssembler.from_packets">from_packets() (minsp.core.SpacePacketAssembler class method)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SpacePacketAssembler.from_packets">(minsp.SpacePacketAssembler class method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -173,6 +211,14 @@
       <li><a href="minsp.pus.html#minsp.pus.PUSHeader.has_time">has_time (minsp.pus.PUSHeader attribute)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="minsp.core.html#minsp.core.SpacePacket.header_from_bytes">header_from_bytes() (minsp.core.SpacePacket class method)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SpacePacket.header_from_bytes">(minsp.SpacePacket class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
 </tr></table>
 
 <h2 id="I">I</h2>
@@ -180,6 +226,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.is_error">is_error (minsp.mo.MALHeader attribute)</a>
 </li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="minsp.core.html#minsp.core.SequenceFlags.LAST">LAST (minsp.core.SequenceFlags attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SequenceFlags.LAST">(minsp.SequenceFlags attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -270,14 +328,24 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="minsp.core.html#minsp.core.PacketType">PacketType (class in minsp.core)</a>
+      <li><a href="minsp.html#minsp.PacketType">PacketType (class in minsp)</a>
+
+      <ul>
+        <li><a href="minsp.core.html#minsp.core.PacketType">(class in minsp.core)</a>
 </li>
+      </ul></li>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.priority">priority (minsp.mo.MALHeader attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.priority_flag">priority_flag (minsp.mo.MALHeader attribute)</a>
 </li>
+      <li><a href="minsp.core.html#minsp.core.SpacePacketAssembler.process_packet">process_packet() (minsp.core.SpacePacketAssembler method)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SpacePacketAssembler.process_packet">(minsp.SpacePacketAssembler method)</a>
+</li>
+      </ul></li>
       <li><a href="minsp.pus.html#minsp.pus.PUSHeader">PUSHeader (class in minsp.pus)</a>
 </li>
   </ul></td>
@@ -301,19 +369,41 @@
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.secondary_apid_qualifier">secondary_apid_qualifier (minsp.mo.MALHeader attribute)</a>
 </li>
       <li><a href="minsp.core.html#minsp.core.SpacePacket.secondary_header">secondary_header (minsp.core.SpacePacket attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SpacePacket.secondary_header">(minsp.SpacePacket attribute)</a>
 </li>
+      </ul></li>
       <li><a href="minsp.core.html#minsp.core.SpacePacket.secondary_header_flag">secondary_header_flag (minsp.core.SpacePacket attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SpacePacket.secondary_header_flag">(minsp.SpacePacket attribute)</a>
 </li>
+      </ul></li>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.segment_counter">segment_counter (minsp.mo.MALHeader attribute)</a>
 </li>
       <li><a href="minsp.core.html#minsp.core.SpacePacket.sequence_count">sequence_count (minsp.core.SpacePacket attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SpacePacket.sequence_count">(minsp.SpacePacket attribute)</a>
 </li>
+      </ul></li>
       <li><a href="minsp.core.html#minsp.core.SpacePacket.sequence_flags">sequence_flags (minsp.core.SpacePacket attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SpacePacket.sequence_flags">(minsp.SpacePacket attribute)</a>
 </li>
-      <li><a href="minsp.mo.html#minsp.mo.MALHeader.service">service (minsp.mo.MALHeader attribute)</a>
+      </ul></li>
+      <li><a href="minsp.html#minsp.SequenceFlags">SequenceFlags (class in minsp)</a>
+
+      <ul>
+        <li><a href="minsp.core.html#minsp.core.SequenceFlags">(class in minsp.core)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="minsp.mo.html#minsp.mo.MALHeader.service">service (minsp.mo.MALHeader attribute)</a>
+</li>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.service_area">service_area (minsp.mo.MALHeader attribute)</a>
 </li>
       <li><a href="minsp.pus.html#minsp.pus.PUSHeader.service_subtype">service_subtype (minsp.pus.PUSHeader attribute)</a>
@@ -334,8 +424,18 @@
       </ul></li>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.source_id_flag">source_id_flag (minsp.mo.MALHeader attribute)</a>
 </li>
-      <li><a href="minsp.core.html#minsp.core.SpacePacket">SpacePacket (class in minsp.core)</a>
+      <li><a href="minsp.html#minsp.SpacePacket">SpacePacket (class in minsp)</a>
+
+      <ul>
+        <li><a href="minsp.core.html#minsp.core.SpacePacket">(class in minsp.core)</a>
 </li>
+      </ul></li>
+      <li><a href="minsp.html#minsp.SpacePacketAssembler">SpacePacketAssembler (class in minsp)</a>
+
+      <ul>
+        <li><a href="minsp.core.html#minsp.core.SpacePacketAssembler">(class in minsp.core)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -343,7 +443,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="minsp.core.html#minsp.core.PacketType.TC">TC (minsp.core.PacketType attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.PacketType.TC">(minsp.PacketType attribute)</a>
 </li>
+      </ul></li>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.timestamp">timestamp (minsp.mo.MALHeader attribute)</a>
 </li>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.timestamp_flag">timestamp_flag (minsp.mo.MALHeader attribute)</a>
@@ -351,11 +455,31 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="minsp.core.html#minsp.core.PacketType.TM">TM (minsp.core.PacketType attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.PacketType.TM">(minsp.PacketType attribute)</a>
 </li>
+      </ul></li>
       <li><a href="minsp.mo.html#minsp.mo.MALHeader.transaction_id">transaction_id (minsp.mo.MALHeader attribute)</a>
 </li>
       <li><a href="minsp.core.html#minsp.core.SpacePacket.type">type (minsp.core.SpacePacket attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SpacePacket.type">(minsp.SpacePacket attribute)</a>
 </li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="minsp.core.html#minsp.core.SequenceFlags.UNSEGMENTED">UNSEGMENTED (minsp.core.SequenceFlags attribute)</a>
+
+      <ul>
+        <li><a href="minsp.html#minsp.SequenceFlags.UNSEGMENTED">(minsp.SequenceFlags attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -368,6 +492,8 @@
         <li><a href="minsp.mo.html#minsp.mo.MALHeader.version">(minsp.mo.MALHeader attribute)</a>
 </li>
         <li><a href="minsp.pus.html#minsp.pus.PUSHeader.version">(minsp.pus.PUSHeader attribute)</a>
+</li>
+        <li><a href="minsp.html#minsp.SpacePacket.version">(minsp.SpacePacket attribute)</a>
 </li>
       </ul></li>
   </ul></td>

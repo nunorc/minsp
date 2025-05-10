@@ -100,7 +100,7 @@
 <p>For example, to create a new space packet for APID 11 and an arbitrary data field:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">space_packet</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="p">(</span><span class="n">apid</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">data_field</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;hello&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">space_packet</span>
-<span class="go">SpacePacket(version=0, type=&lt;PacketType.TM: 0&gt;, secondary_header_flag=0, apid=11, sequence_flags=3, sequence_count=0, data_length=4, secondary_header=b&#39;&#39;, data_field=b&#39;hello&#39;)</span>
+<span class="go">SpacePacket(version=0, type=&lt;PacketType.TM: 0&gt;, secondary_header_flag=0, apid=11, sequence_flags=&lt;SequenceFlags.UNSEGMENTED: 3&gt;, sequence_count=0, data_length=4, secondary_header=b&#39;&#39;, data_field=b&#39;hello&#39;)</span>
 </pre></div>
 </div>
 <p>To get the bytes representation of the packet:</p>
@@ -112,7 +112,7 @@
 <p>Packets can also be created from a byte stream:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">new_packet</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">byte_stream</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">new_packet</span>
-<span class="go">SpacePacket(version=0, type=0, secondary_header_flag=0, apid=11, sequence_flags=3, sequence_count=0, data_length=4, secondary_header=b&#39;&#39;, data_field=b&#39;hello&#39;)</span>
+<span class="go">SpacePacket(version=0, type=&lt;PacketType.TM: 0&gt;, secondary_header_flag=0, apid=11, sequence_flags=&lt;SequenceFlags.UNSEGMENTED: 3&gt;, sequence_count=0, data_length=4, secondary_header=b&#39;&#39;, data_field=b&#39;hello&#39;)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">new_packet</span><span class="o">.</span><span class="n">data_field</span>
 <span class="go">b&#39;hello&#39;</span>
 </pre></div>
@@ -127,7 +127,7 @@
 <p>And create a new packet with the PUS header:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">space_packet</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="p">(</span><span class="n">secondary_header</span><span class="o">=</span><span class="n">pus_header</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">space_packet</span>
-<span class="go">SpacePacket(version=0, type=&lt;PacketType.TM: 0&gt;, secondary_header_flag=1, apid=0, sequence_flags=3, sequence_count=0, data_length=3, secondary_header=PUSHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b&#39;&#39;), data_field=b&#39;&#39;)</span>
+<span class="go">SpacePacket(version=0, type=&lt;PacketType.TM: 0&gt;, secondary_header_flag=1, apid=0, sequence_flags=&lt;SequenceFlags.UNSEGMENTED: 3&gt;, sequence_count=0, data_length=3, secondary_header=PUSHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b&#39;&#39;), data_field=b&#39;&#39;)</span>
 </pre></div>
 </div>
 <p>Similar approach for a MAL secondary header:</p>
@@ -140,19 +140,41 @@
 <p>And to create a new packet with the MAL header:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">space_packet</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="p">(</span><span class="n">secondary_header</span><span class="o">=</span><span class="n">mal_header</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">space_packet</span>
-<span class="go">SpacePacket(version=0, type=&lt;PacketType.TM: 0&gt;, secondary_header_flag=1, apid=0, sequence_flags=3, sequence_count=0, data_length=20, secondary_header=MALHeader(version=0, sdu_type=0, service_area=0, service=0, operation=0, area_version=0, is_error=0, qos_level=0, session=0, secondary_apid=0, secondary_apid_qualifier=0, transaction_id=0, source_id_flag=0, destination_id_flag=0, priority_flag=0, timestamp_flag=0, network_zone_flag=0, session_name_flag=0, domain_flag=0, authentication_id_flag=0, source_id=0, destination_id=0, segment_counter=0, priority=0, timestamp=None, network_zone=&#39;&#39;, session_name=&#39;&#39;, domain=&#39;&#39;, authentication_id=&#39;&#39;), data_field=b&#39;&#39;)</span>
+<span class="go">SpacePacket(version=0, type=&lt;PacketType.TM: 0&gt;, secondary_header_flag=1, apid=0, sequence_flags=&lt;SequenceFlags.UNSEGMENTED: 3&gt;, sequence_count=0, data_length=20, secondary_header=MALHeader(version=0, sdu_type=0, service_area=0, service=0, operation=0, area_version=0, is_error=0, qos_level=0, session=0, secondary_apid=0, secondary_apid_qualifier=0, transaction_id=0, source_id_flag=0, destination_id_flag=0, priority_flag=0, timestamp_flag=0, network_zone_flag=0, session_name_flag=0, domain_flag=0, authentication_id_flag=0, source_id=0, destination_id=0, segment_counter=0, priority=0, timestamp=None, network_zone=&#39;&#39;, session_name=&#39;&#39;, domain=&#39;&#39;, authentication_id=&#39;&#39;), data_field=b&#39;&#39;)</span>
 </pre></div>
 </div>
 <p>To create a space packet from a byte stream including a PUS header:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="p">(</span><span class="n">secondary_header</span><span class="o">=</span><span class="n">pus_header</span><span class="p">)</span><span class="o">.</span><span class="n">as_bytes</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">SpacePacket</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pus</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">SpacePacket(version=0, type=0, secondary_header_flag=1, apid=0, sequence_flags=3, sequence_count=0, data_length=3, secondary_header=PUSHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b&#39;&#39;), data_field=b&#39;&#39;)</span>
+<span class="go">SpacePacket(version=0, type=&lt;PacketType.TM: 0&gt;, secondary_header_flag=1, apid=0, sequence_flags=&lt;SequenceFlags.UNSEGMENTED: 3&gt;, sequence_count=0, data_length=3, secondary_header=PUSHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b&#39;&#39;), data_field=b&#39;&#39;)</span>
 </pre></div>
 </div>
 <p>Or from a byte stream including a MAL header:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="p">(</span><span class="n">secondary_header</span><span class="o">=</span><span class="n">mal_header</span><span class="p">)</span><span class="o">.</span><span class="n">as_bytes</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">SpacePacket</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mal</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">SpacePacket(version=0, type=0, secondary_header_flag=1, apid=0, sequence_flags=3, sequence_count=0, data_length=20, secondary_header=MALHeader(version=0, sdu_type=0, service_area=0, service=0, operation=0, area_version=0, is_error=0, qos_level=0, session=0, secondary_apid=0, secondary_apid_qualifier=0, transaction_id=0, source_id_flag=0, destination_id_flag=0, priority_flag=0, timestamp_flag=0, network_zone_flag=0, session_name_flag=0, domain_flag=0, authentication_id_flag=0, source_id=0, destination_id=0, segment_counter=0, priority=0, timestamp=None, network_zone=&#39;&#39;, session_name=&#39;&#39;, domain=&#39;&#39;, authentication_id=&#39;&#39;), data_field=b&#39;&#39;)</span>
+</pre></div>
+</div>
+<p>Use <code class="code docutils literal notranslate"><span class="pre">SpacePacketAssembler</span></code> to recover the data from a list
+of fragmented packets, for example consider the following packets:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minsp</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpacePacket</span><span class="p">,</span> <span class="n">SequenceFlag</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp1</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="p">(</span><span class="n">sequence_flags</span><span class="o">=</span><span class="n">SequenceFlag</span><span class="o">.</span><span class="n">FIRST</span><span class="p">,</span> <span class="n">data_field</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;123&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp2</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="p">(</span><span class="n">sequence_flags</span><span class="o">=</span><span class="n">SequenceFlag</span><span class="o">.</span><span class="n">CONTINUATION</span><span class="p">,</span> <span class="n">data_field</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;456&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp3</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="p">(</span><span class="n">sequence_flags</span><span class="o">=</span><span class="n">SequenceFlag</span><span class="o">.</span><span class="n">LAST</span><span class="p">,</span> <span class="n">data_field</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;789&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To recover the fragmented payload by processing the individual packets:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minsp</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpacePacketAssembler</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spa</span> <span class="o">=</span> <span class="n">SpacePacketAssembler</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spa</span><span class="o">.</span><span class="n">process_packet</span><span class="p">(</span><span class="n">sp1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spa</span><span class="o">.</span><span class="n">process_packet</span><span class="p">(</span><span class="n">sp2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spa</span><span class="o">.</span><span class="n">process_packet</span><span class="p">(</span><span class="n">sp3</span><span class="p">)</span>
+<span class="go">b&#39;123456789&#39;</span>
+</pre></div>
+</div>
+<p>Or directly using the <code class="code docutils literal notranslate"><span class="pre">from_packets</span></code> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">SpacePacketAssembler</span><span class="o">.</span><span class="n">from_packets</span><span class="p">([</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">sp3</span><span class="p">])</span>
+<span class="go">b&#39;123456789&#39;</span>
 </pre></div>
 </div>
 </section>
