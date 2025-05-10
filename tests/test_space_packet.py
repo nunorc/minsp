@@ -1,5 +1,5 @@
 
-from minsp import SpacePacket, PacketType
+from minsp import SpacePacket, PacketType, SequenceFlag
 
 def test_new_space_packet():
     packet = SpacePacket()
@@ -8,7 +8,7 @@ def test_new_space_packet():
     assert packet.type == PacketType.TM
     assert packet.secondary_header_flag == 0
     assert packet.apid == 0
-    assert packet.sequence_flags == 0b11
+    assert packet.sequence_flags == SequenceFlag.UNSEGMENTED
     assert packet.sequence_count == 0
     assert packet.data_length == -1
     assert packet.secondary_header == b''

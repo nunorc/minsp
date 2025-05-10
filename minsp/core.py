@@ -20,6 +20,21 @@ class PacketType(int, Enum):
     TM = 0b0
     TC = 0b1
 
+class SequenceFlag(int, Enum):
+    """
+    Enum to represent the sequece flags of a space packet.
+
+    Attributes:
+        CONTINUATION = 0
+        FIRST = 1
+        LAST = 2
+        UNSEGMENTED = 3
+    """
+    CONTINUATION = 0b00
+    FIRST = 0b01
+    LAST = 0b10
+    UNSEGMENTED = 0b11
+
 @dataclass
 class SpacePacket:
     """
@@ -43,8 +58,8 @@ class SpacePacket:
     :type secondary_header_flag: int
     :param apid: Application process identifier, default is `0` (11 bits).
     :type apid: int
-    :param sequence_flags: Sequence flags, default is `0b11` (2 bits).
-    :type sequence_flags: int
+    :param sequence_flags: Sequence flags, default is `SequenceFlag.UNSEGMENTED` (2 bits).
+    :type sequence_flags: SequenceFlag
     :param sequence_count: Sequence count, default is `0` (14 bits).
     :type sequence_count: int
     :param data_length: Packet data field length of the data following
@@ -58,7 +73,7 @@ class SpacePacket:
     type: PacketType = PacketType.TM
     secondary_header_flag: int = 0
     apid: int = 0
-    sequence_flags: int = 0b11
+    sequence_flags: SequenceFlag = SequenceFlag.UNSEGMENTED
     sequence_count: int = 0
     data_length: int = 0
 
@@ -199,3 +214,68 @@ class SpacePacket:
         header["data_length"] = pkt_length
 
         return header
+
+
+class SpacePacketAssembler:
+    """
+    Assembles the payload from segmented space packets.
+    """
+    def __init__(self):
+        self.buffer = bytearray()
+        self.reassembling = False
+
+    def process_packet(self, packet:SpacePacket) -> bytes | None:
+        """
+        Process a individual space packet.
+
+        :raises RuntimeError: Continuation received without first segment.
+        :raises RuntimeError: Last segment received without segment.
+
+        :return: Optional payload found.
+        :rtype: bytes | None
+        """
+        payload = None
+
+        if packet.sequence_flags == SequenceFlag.UNSEGMENTED:
+            payload = packet.data_field
+
+        elif packet.sequence_flags == SequenceFlag.FIRST:
+            self.buffer = bytearray(packet.data_field)
+            self.reassembling = True
+            payload = None
+
+        elif packet.sequence_flags == SequenceFlag.CONTINUATION:
+            if not self.reassembling:
+                raise RuntimeError("Continuation received without first segment.")
+            self.buffer.extend(packet.data_field)
+            payload = None
+
+        elif packet.sequence_flags == SequenceFlag.LAST:
+            if not self.reassembling:
+                raise RuntimeError("Last segment received without segment.")
+            self.buffer.extend(packet.data_field)
+            payload = bytes(self.buffer)
+            self.buffer.clear()
+            self.reassembling = False
+
+        return payload
+
+    @classmethod
+    def from_packets(cls, packets:list[SpacePacket]) -> bytes | None:
+        """
+        Assembles the payload from segmented space packets.
+
+        :param packets: A list of `SpacePacket`.
+        :type packets: list[SpacePacket]
+
+        :return: The payload.
+        :rtype: bytes | None
+        """
+        spa = cls()
+
+        for packet in packets:
+            payload = spa.process_packet(packet)
+            if payload:
+                return payload
+
+        return None

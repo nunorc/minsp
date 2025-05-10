@@ -4,7 +4,7 @@ The `minsp.__init__` module imports the core functions and classes from `minsp.c
 
 import logging
 
-from .core import SpacePacket, PacketType
+from .core import SpacePacket, PacketType, SequenceFlag, SpacePacketAssembler
 
 logging.basicConfig(format = '%(asctime)s | %(levelname)s: %(message)s',
                     datefmt = "%Y-%m-%d %H:%M:%S",
