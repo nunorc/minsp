@@ -1,9 +1,9 @@
 
-from minsp import SpacePacket, SequenceFlag, SpacePacketAssembler
+from minsp import SpacePacket, SequenceFlags, SpacePacketAssembler
 
-space_packet_1 = SpacePacket(sequence_flags=SequenceFlag.FIRST, data_field=b"123")
-space_packet_2 = SpacePacket(sequence_flags=SequenceFlag.CONTINUATION, data_field=b"456")
-space_packet_3 = SpacePacket(sequence_flags=SequenceFlag.LAST, data_field=b"789")
+space_packet_1 = SpacePacket(sequence_flags=SequenceFlags.FIRST, data_field=b"123")
+space_packet_2 = SpacePacket(sequence_flags=SequenceFlags.CONTINUATION, data_field=b"456")
+space_packet_3 = SpacePacket(sequence_flags=SequenceFlags.LAST, data_field=b"789")
 
 def test_new_space_packet_assembler():
     space_packet_assembler = SpacePacketAssembler()

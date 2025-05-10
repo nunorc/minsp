@@ -20,7 +20,7 @@ class PacketType(int, Enum):
     TM = 0b0
     TC = 0b1
 
-class SequenceFlag(int, Enum):
+class SequenceFlags(int, Enum):
     """
     Enum to represent the sequece flags of a space packet.
 
@@ -73,7 +73,7 @@ class SpacePacket:
     type: PacketType = PacketType.TM
     secondary_header_flag: int = 0
     apid: int = 0
-    sequence_flags: SequenceFlag = SequenceFlag.UNSEGMENTED
+    sequence_flags: SequenceFlags = SequenceFlags.UNSEGMENTED
     sequence_count: int = 0
     data_length: int = 0
 
@@ -176,10 +176,10 @@ class SpacePacket:
 
         return cls(
             version=header["version"],
-            type=header["type"],
+            type=PacketType(header["type"]),
             secondary_header_flag=header["secondary_header_flag"],
             apid=header["apid"],
-            sequence_flags=header["sequence_flags"],
+            sequence_flags=SequenceFlags(header["sequence_flags"]),
             sequence_count=header["sequence_count"],
             secondary_header=secondary_header,
             data_length=header["data_length"],
@@ -236,21 +236,21 @@ class SpacePacketAssembler:
         """
         payload = None
 
-        if packet.sequence_flags == SequenceFlag.UNSEGMENTED:
+        if packet.sequence_flags == SequenceFlags.UNSEGMENTED:
             payload = packet.data_field
 
-        elif packet.sequence_flags == SequenceFlag.FIRST:
+        elif packet.sequence_flags == SequenceFlags.FIRST:
             self.buffer = bytearray(packet.data_field)
             self.reassembling = True
             payload = None
 
-        elif packet.sequence_flags == SequenceFlag.CONTINUATION:
+        elif packet.sequence_flags == SequenceFlags.CONTINUATION:
             if not self.reassembling:
                 raise RuntimeError("Continuation received without first segment.")
             self.buffer.extend(packet.data_field)
             payload = None
 
-        elif packet.sequence_flags == SequenceFlag.LAST:
+        elif packet.sequence_flags == SequenceFlags.LAST:
             if not self.reassembling:
                 raise RuntimeError("Last segment received without segment.")
             self.buffer.extend(packet.data_field)
