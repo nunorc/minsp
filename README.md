@@ -55,6 +55,16 @@ SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=0, apid=11
 b'hello'
 ```
 
+The packet data length field delimits the packet, so any octets past the end of
+the packet are ignored. To walk a buffer holding several back to back packets use
+`iter_packets`, which takes the same secondary header arguments as `from_bytes`:
+
+```python
+>>> stream = b'\x00\x0b\xc0\x00\x00\x04hello\x00\x0c\xc0\x00\x00\x04world'
+>>> [(p.apid, p.data_field) for p in SpacePacket.iter_packets(stream)]
+[(11, b'hello'), (12, b'world')]
+```
+
 Secondary header can have a custom data definition, or to use PUS. Telemetry
 packets use the PUS-C (ECSS-E-ST-70-41C) TM secondary header:
 

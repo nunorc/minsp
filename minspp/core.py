@@ -162,6 +162,7 @@ class SpacePacket:
 
         :raises ValueError: Insufficient data for space packet primary header.
         :raises ValueError: Both `pus_tc` and `pus_tm` are set.
+        :raises ValueError: Insufficient data for the declared packet data length.
         :raises ValueError: Secondary header flag bit is set to 1, but secondary header length is 0.
 
         :return: A new `SpacePacket`.
@@ -174,6 +175,13 @@ class SpacePacket:
             raise ValueError("Secondary header can't be both a PUS TC and a PUS TM header.")
 
         header = cls.header_from_bytes(data[:6])
+
+        # the packet data field holds data_length+1 octets, anything past it
+        # belongs to the next packet (or is trailing garbage) and is dropped
+        packet_length = 6 + header["data_length"] + 1
+        if len(data) < packet_length:
+            raise ValueError("Insufficient data for the declared packet data length.")
+        data = data[:packet_length]
 
         if header["secondary_header_flag"] == 1:
             if pus_tc:
@@ -210,6 +218,55 @@ class SpacePacket:
             data_length=header["data_length"],
             data_field=data_field
         )
+
+    @classmethod
+    def iter_packets(cls, data: bytes, secondary_header_length: int = 0, \
+        pus_tc: bool = False, mal: bool = False, pus_has_time: bool = False, \
+        pus_cuc_time_length: int = CUC_TIME_LENGTH, pus_tm: bool = False, \
+        pus_source_id_length: int = PUS_TC_SOURCE_ID_LENGTH):
+        """
+        Unpacks a byte stream of back to back space packets, yielding one
+        `SpacePacket` per packet found. Every packet in the stream must share the
+        same secondary header shape, described by the arguments of this method,
+        which have the same meaning as in `from_bytes`.
+
+        :param data: The byte stream.
+        :type data: bytes
+        :param secondary_header_length: Secondary header length if present, default is `0`.
+        :type secondary_header_length: int
+        :param pus_tc: Secondary header is a `PUSTCHeader`.
+        :type pus_tc: bool
+        :param mal: Secondary header is a `MALHeader`.
+        :type mal: bool
+        :param pus_has_time: PUS secondary header includes a CUC time.
+        :type pus_has_time: bool
+        :param pus_cuc_time_length: Length in bytes of the PUS CUC time, default is `7`.
+        :type pus_cuc_time_length: int
+        :param pus_tm: Secondary header is a `PUSTMHeader`.
+        :type pus_tm: bool
+        :param pus_source_id_length: Length in bytes of the source ID of a PUS TC
+        secondary header, default is `1`. The standard makes this width mission defined.
+        :type pus_source_id_length: int
+
+        :raises ValueError: Insufficient data for space packet primary header.
+        :raises ValueError: Insufficient data for the declared packet data length.
+
+        :return: A generator of `SpacePacket`.
+        :rtype: Iterator[SpacePacket]
+        """
+        offset = 0
+
+        while offset < len(data):
+            header = cls.header_from_bytes(data[offset:offset+6])
+            packet_length = 6 + header["data_length"] + 1
+
+            yield cls.from_bytes(data[offset:offset+packet_length],
+                                 secondary_header_length=secondary_header_length,
+                                 pus_tc=pus_tc, mal=mal, pus_has_time=pus_has_time,
+                                 pus_cuc_time_length=pus_cuc_time_length, pus_tm=pus_tm,
+                                 pus_source_id_length=pus_source_id_length)
+
+            offset += packet_length
 
     @classmethod
     def header_from_bytes(cls, data: bytes) -> dict:

@@ -1,4 +1,6 @@
 
+import pytest
+
 from minspp import SpacePacket, PacketType, SequenceFlags
 
 def test_new_space_packet():
@@ -44,3 +46,46 @@ def test_space_packet_byte_stream_sec_hdr():
     new_packet = SpacePacket.from_bytes(byte_stream, secondary_header_length=len(hdr))
     assert hdr == new_packet.secondary_header
     assert pld == new_packet.data_field
+
+def test_space_packet_from_bytes_bounded_by_data_length():
+    packet = SpacePacket(data_field=b'testing')
+
+    new_packet = SpacePacket.from_bytes(packet.as_bytes() + b'\xAA\xBB')
+    assert new_packet.data_field == b'testing'
+    assert new_packet.data_length == packet.data_length
+
+def test_space_packet_from_bytes_bounded_by_data_length_sec_hdr():
+    hdr = b'1212121212'
+
+    packet = SpacePacket(secondary_header=hdr, data_field=b'testing')
+
+    new_packet = SpacePacket.from_bytes(packet.as_bytes() + b'\xAA\xBB',
+                                        secondary_header_length=len(hdr))
+    assert new_packet.secondary_header == hdr
+    assert new_packet.data_field == b'testing'
+
+def test_space_packet_from_bytes_truncated():
+    byte_stream = SpacePacket(data_field=b'testing').as_bytes()
+
+    with pytest.raises(ValueError):
+        SpacePacket.from_bytes(byte_stream[:-1])
+
+def test_space_packet_iter_packets():
+    first = SpacePacket(apid=1, data_field=b'testing')
+    second = SpacePacket(apid=2, data_field=b'more testing')
+
+    packets = list(SpacePacket.iter_packets(first.as_bytes() + second.as_bytes()))
+
+    assert len(packets) == 2
+    assert [p.apid for p in packets] == [1, 2]
+    assert packets[0].data_field == b'testing'
+    assert packets[1].data_field == b'more testing'
+
+def test_space_packet_iter_packets_empty():
+    assert not list(SpacePacket.iter_packets(b''))
+
+def test_space_packet_iter_packets_truncated():
+    byte_stream = SpacePacket(data_field=b'testing').as_bytes()
+
+    with pytest.raises(ValueError):
+        list(SpacePacket.iter_packets(byte_stream + byte_stream[:-1]))

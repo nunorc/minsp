@@ -343,6 +343,28 @@ def test_space_packet_pus_tm_no_time_keeps_data_field():
     assert packet2.secondary_header.cuc_time == b''
     assert packet2.data_field == b'\x01\x02'
 
+def test_space_packet_pus_tm_trailing_bytes_are_not_absorbed():
+    space_packet = SpacePacket(secondary_header=PUSTMHeader(), data_field=b'\x01\x02')
+
+    packet2 = SpacePacket.from_bytes(space_packet.as_bytes() + b'\xAA\xBB', pus_tm=True)
+
+    assert packet2.data_field == b'\x01\x02'
+    assert packet2.data_length == space_packet.data_length
+
+def test_space_packet_pus_tm_iter_packets():
+    first = SpacePacket(apid=1, secondary_header=PUSTMHeader(service_type=3, service_subtype=25),
+                        data_field=b'\x01\x02')
+    second = SpacePacket(apid=2, secondary_header=PUSTMHeader(service_type=5, service_subtype=1),
+                         data_field=b'\x03\x04\x05')
+
+    packets = list(SpacePacket.iter_packets(first.as_bytes() + second.as_bytes(), pus_tm=True))
+
+    assert len(packets) == 2
+    assert packets[0].secondary_header == first.secondary_header
+    assert packets[0].data_field == b'\x01\x02'
+    assert packets[1].secondary_header == second.secondary_header
+    assert packets[1].data_field == b'\x03\x04\x05'
+
 def test_space_packet_pus_tc_and_pus_tm_are_exclusive():
     space_packet = SpacePacket(secondary_header=PUSTMHeader(), data_field=b'\x01\x02')
 
