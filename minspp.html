@@ -1,0 +1,524 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>minspp package &mdash; minspp  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="minspp.core module" href="minspp.core.html" />
+    <link rel="prev" title="minspp" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            minspp
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">minspp</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">minspp package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#minspp.PacketType"><code class="docutils literal notranslate"><span class="pre">PacketType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.PacketType.TC"><code class="docutils literal notranslate"><span class="pre">PacketType.TC</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.PacketType.TM"><code class="docutils literal notranslate"><span class="pre">PacketType.TM</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minspp.SequenceFlags"><code class="docutils literal notranslate"><span class="pre">SequenceFlags</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SequenceFlags.CONTINUATION"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.CONTINUATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SequenceFlags.FIRST"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.FIRST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SequenceFlags.LAST"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.LAST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SequenceFlags.UNSEGMENTED"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.UNSEGMENTED</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minspp.SpacePacket"><code class="docutils literal notranslate"><span class="pre">SpacePacket</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.apid"><code class="docutils literal notranslate"><span class="pre">SpacePacket.apid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.as_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.as_bytes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.data_field"><code class="docutils literal notranslate"><span class="pre">SpacePacket.data_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.data_length"><code class="docutils literal notranslate"><span class="pre">SpacePacket.data_length</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.from_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.from_bytes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.header_from_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.header_from_bytes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.secondary_header"><code class="docutils literal notranslate"><span class="pre">SpacePacket.secondary_header</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.secondary_header_flag"><code class="docutils literal notranslate"><span class="pre">SpacePacket.secondary_header_flag</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.sequence_count"><code class="docutils literal notranslate"><span class="pre">SpacePacket.sequence_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.sequence_flags"><code class="docutils literal notranslate"><span class="pre">SpacePacket.sequence_flags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.type"><code class="docutils literal notranslate"><span class="pre">SpacePacket.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacket.version"><code class="docutils literal notranslate"><span class="pre">SpacePacket.version</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minspp.SpacePacketAssembler"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacketAssembler.from_packets"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler.from_packets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minspp.SpacePacketAssembler.process_packet"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler.process_packet()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="minspp.core.html">minspp.core module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="minspp.mo.html">minspp.mo module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="minspp.pus.html">minspp.pus module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="minspp.utils.html">minspp.utils module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">minspp</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">minspp</a></li>
+      <li class="breadcrumb-item active">minspp package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/minspp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-minspp">
+<span id="minspp-package"></span><h1>minspp package<a class="headerlink" href="#module-minspp" title="Link to this heading"></a></h1>
+<p>The <cite>minspp.__init__</cite> module imports the core functions and classes from <cite>minspp.core</cite>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="minspp.PacketType">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minspp.</span></span><span class="sig-name descname"><span class="pre">PacketType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minspp.PacketType" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enum to represent a space packet type: telemetry (TM) or telecommand (TC).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">TM</span> <span class="pre">=</span> <span class="pre">0</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">TC</span> <span class="pre">=</span> <span class="pre">1</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.PacketType.TC">
+<span class="sig-name descname"><span class="pre">TC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#minspp.PacketType.TC" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.PacketType.TM">
+<span class="sig-name descname"><span class="pre">TM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minspp.PacketType.TM" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minspp.SequenceFlags">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minspp.</span></span><span class="sig-name descname"><span class="pre">SequenceFlags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minspp.SequenceFlags" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enum to represent the sequece flags of a space packet.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">CONTINUATION</span> <span class="pre">=</span> <span class="pre">0</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">FIRST</span> <span class="pre">=</span> <span class="pre">1</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">LAST</span> <span class="pre">=</span> <span class="pre">2</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">UNSEGMENTED</span> <span class="pre">=</span> <span class="pre">3</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SequenceFlags.CONTINUATION">
+<span class="sig-name descname"><span class="pre">CONTINUATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minspp.SequenceFlags.CONTINUATION" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SequenceFlags.FIRST">
+<span class="sig-name descname"><span class="pre">FIRST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#minspp.SequenceFlags.FIRST" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SequenceFlags.LAST">
+<span class="sig-name descname"><span class="pre">LAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#minspp.SequenceFlags.LAST" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SequenceFlags.UNSEGMENTED">
+<span class="sig-name descname"><span class="pre">UNSEGMENTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#minspp.SequenceFlags.UNSEGMENTED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minspp.SpacePacket">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minspp.</span></span><span class="sig-name descname"><span class="pre">SpacePacket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="minspp.core.html#minspp.core.PacketType" title="minspp.core.PacketType"><span class="pre">PacketType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PacketType.TM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_header_flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence_flags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="minspp.core.html#minspp.core.SequenceFlags" title="minspp.core.SequenceFlags"><span class="pre">SequenceFlags</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SequenceFlags.UNSEGMENTED</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader" title="minspp.pus.PUSHeader"><span class="pre">PUSHeader</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader" title="minspp.mo.MALHeader"><span class="pre">MALHeader</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">b''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">b''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minspp.SpacePacket" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a CCSDS Space Packet (including primary header, optional secondary
+header, and data field).</p>
+<p>According to the CCSDS standard:
+* The primary header is 6 bytes long and contains version, packet type, APID,
+sequence info, and length.
+* The secondary header can be an custom stream of bytes, and instance of <cite>PUSheader</cite>
+or an instance of <cite>MALHeader</cite>.
+* The data length field (data_length) defines the number of bytes after the primary
+header minus one.
+* This class allows serialization to and from byte streams.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>version</strong> (<em>int</em>) – Packet version, default is <cite>0</cite> (3 bits).</p></li>
+<li><p><strong>type</strong> (<a class="reference internal" href="#minspp.PacketType" title="minspp.PacketType"><em>PacketType</em></a>) – Packet type, default is <cite>PacketType.TM</cite> (1 bit).</p></li>
+<li><p><strong>secondary_header_flag</strong> (<em>int</em>) – Secondary header flag, default is <cite>0</cite> (1 bit).</p></li>
+<li><p><strong>apid</strong> (<em>int</em>) – Application process identifier, default is <cite>0</cite> (11 bits).</p></li>
+<li><p><strong>sequence_flags</strong> (<em>SequenceFlag</em>) – Sequence flags, default is <cite>SequenceFlag.UNSEGMENTED</cite> (2 bits).</p></li>
+<li><p><strong>sequence_count</strong> (<em>int</em>) – Sequence count, default is <cite>0</cite> (14 bits).</p></li>
+<li><p><strong>data_length</strong> – Packet data field length of the data following</p></li>
+</ul>
+</dd>
+</dl>
+<p>the primary header minus one, defaults is <cite>0</cite> (16 bits).
+:param secondary_header: Secondary header.
+:type secondary_header: bytes|`PUSHeader`|`MALHeader`
+:param data_field: Packet data.
+:type data_field: bytes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SpacePacket.apid">
+<span class="sig-name descname"><span class="pre">apid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minspp.SpacePacket.apid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minspp.SpacePacket.as_bytes">
+<span class="sig-name descname"><span class="pre">as_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="headerlink" href="#minspp.SpacePacket.as_bytes" title="Link to this definition"></a></dt>
+<dd><p>Packs the space packet into a byte stream, including:
+- Primary header (6 bytes)
+- Optional secondary header
+- Data field</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Space packet bytes.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SpacePacket.data_field">
+<span class="sig-name descname"><span class="pre">data_field</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bytes</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">b''</span></em><a class="headerlink" href="#minspp.SpacePacket.data_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SpacePacket.data_length">
+<span class="sig-name descname"><span class="pre">data_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minspp.SpacePacket.data_length" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minspp.SpacePacket.from_bytes">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_header_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket" title="minspp.core.SpacePacket"><span class="pre">SpacePacket</span></a></span></span><a class="headerlink" href="#minspp.SpacePacket.from_bytes" title="Link to this definition"></a></dt>
+<dd><p>Unpacks a byte stream into a <cite>SpacePacket</cite> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>bytes</em>) – The byte stream.</p></li>
+<li><p><strong>secondary_header_length</strong> (<em>int</em>) – Secondary header length if present, default is <cite>0</cite>.</p></li>
+<li><p><strong>pus</strong> (<em>bool</em>) – Secondary header is a PUS header.</p></li>
+<li><p><strong>pus</strong> – Secondary header is a MAL header.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Insufficient data for space packet primary header.</p></li>
+<li><p><strong>ValueError</strong> – Secondary header flag bit is set to 1, but secondary header length is 0.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A new <cite>SpacePacket</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#minspp.SpacePacket" title="minspp.SpacePacket">SpacePacket</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minspp.SpacePacket.header_from_bytes">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">header_from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#minspp.SpacePacket.header_from_bytes" title="Link to this definition"></a></dt>
+<dd><p>Unpacks a space packt header from a byte.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – The byte stream.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Insufficient data for space packet primary header.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A new <cite>dict</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SpacePacket.secondary_header">
+<span class="sig-name descname"><span class="pre">secondary_header</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader" title="minspp.pus.PUSHeader"><span class="pre">PUSHeader</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader" title="minspp.mo.MALHeader"><span class="pre">MALHeader</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">b''</span></em><a class="headerlink" href="#minspp.SpacePacket.secondary_header" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SpacePacket.secondary_header_flag">
+<span class="sig-name descname"><span class="pre">secondary_header_flag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minspp.SpacePacket.secondary_header_flag" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SpacePacket.sequence_count">
+<span class="sig-name descname"><span class="pre">sequence_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minspp.SpacePacket.sequence_count" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SpacePacket.sequence_flags">
+<span class="sig-name descname"><span class="pre">sequence_flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="minspp.core.html#minspp.core.SequenceFlags" title="minspp.core.SequenceFlags"><span class="pre">SequenceFlags</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#minspp.SpacePacket.sequence_flags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SpacePacket.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="minspp.core.html#minspp.core.PacketType" title="minspp.core.PacketType"><span class="pre">PacketType</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minspp.SpacePacket.type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minspp.SpacePacket.version">
+<span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#minspp.SpacePacket.version" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minspp.SpacePacketAssembler">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minspp.</span></span><span class="sig-name descname"><span class="pre">SpacePacketAssembler</span></span><a class="headerlink" href="#minspp.SpacePacketAssembler" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Assembles the payload from segmented space packets.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="minspp.SpacePacketAssembler.from_packets">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_packets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket" title="minspp.core.SpacePacket"><span class="pre">SpacePacket</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#minspp.SpacePacketAssembler.from_packets" title="Link to this definition"></a></dt>
+<dd><p>Assembles the payload from segmented space packets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>packets</strong> (<em>list</em><em>[</em><a class="reference internal" href="#minspp.SpacePacket" title="minspp.SpacePacket"><em>SpacePacket</em></a><em>]</em>) – A list of <cite>SpacePacket</cite>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The payload.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minspp.SpacePacketAssembler.process_packet">
+<span class="sig-name descname"><span class="pre">process_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket" title="minspp.core.SpacePacket"><span class="pre">SpacePacket</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#minspp.SpacePacketAssembler.process_packet" title="Link to this definition"></a></dt>
+<dd><p>Process a individual space packet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – Continuation received without first segment.</p></li>
+<li><p><strong>RuntimeError</strong> – Last segment received without segment.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional payload found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="minspp.core.html">minspp.core module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="minspp.core.html#minspp.core.PacketType"><code class="docutils literal notranslate"><span class="pre">PacketType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.PacketType.TC"><code class="docutils literal notranslate"><span class="pre">PacketType.TC</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.PacketType.TM"><code class="docutils literal notranslate"><span class="pre">PacketType.TM</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="minspp.core.html#minspp.core.SequenceFlags"><code class="docutils literal notranslate"><span class="pre">SequenceFlags</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SequenceFlags.CONTINUATION"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.CONTINUATION</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SequenceFlags.FIRST"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.FIRST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SequenceFlags.LAST"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.LAST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SequenceFlags.UNSEGMENTED"><code class="docutils literal notranslate"><span class="pre">SequenceFlags.UNSEGMENTED</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket"><code class="docutils literal notranslate"><span class="pre">SpacePacket</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.apid"><code class="docutils literal notranslate"><span class="pre">SpacePacket.apid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.as_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.as_bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.data_field"><code class="docutils literal notranslate"><span class="pre">SpacePacket.data_field</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.data_length"><code class="docutils literal notranslate"><span class="pre">SpacePacket.data_length</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.from_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.from_bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.header_from_bytes"><code class="docutils literal notranslate"><span class="pre">SpacePacket.header_from_bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.secondary_header"><code class="docutils literal notranslate"><span class="pre">SpacePacket.secondary_header</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.secondary_header_flag"><code class="docutils literal notranslate"><span class="pre">SpacePacket.secondary_header_flag</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.sequence_count"><code class="docutils literal notranslate"><span class="pre">SpacePacket.sequence_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.sequence_flags"><code class="docutils literal notranslate"><span class="pre">SpacePacket.sequence_flags</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.type"><code class="docutils literal notranslate"><span class="pre">SpacePacket.type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacket.version"><code class="docutils literal notranslate"><span class="pre">SpacePacket.version</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacketAssembler"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacketAssembler.from_packets"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler.from_packets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.core.html#minspp.core.SpacePacketAssembler.process_packet"><code class="docutils literal notranslate"><span class="pre">SpacePacketAssembler.process_packet()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="minspp.mo.html">minspp.mo module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader"><code class="docutils literal notranslate"><span class="pre">MALHeader</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.area_version"><code class="docutils literal notranslate"><span class="pre">MALHeader.area_version</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.as_bytes"><code class="docutils literal notranslate"><span class="pre">MALHeader.as_bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.authentication_id"><code class="docutils literal notranslate"><span class="pre">MALHeader.authentication_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.authentication_id_flag"><code class="docutils literal notranslate"><span class="pre">MALHeader.authentication_id_flag</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.destination_id"><code class="docutils literal notranslate"><span class="pre">MALHeader.destination_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.destination_id_flag"><code class="docutils literal notranslate"><span class="pre">MALHeader.destination_id_flag</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.domain"><code class="docutils literal notranslate"><span class="pre">MALHeader.domain</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.domain_flag"><code class="docutils literal notranslate"><span class="pre">MALHeader.domain_flag</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.from_bytes"><code class="docutils literal notranslate"><span class="pre">MALHeader.from_bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.is_error"><code class="docutils literal notranslate"><span class="pre">MALHeader.is_error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.network_zone"><code class="docutils literal notranslate"><span class="pre">MALHeader.network_zone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.network_zone_flag"><code class="docutils literal notranslate"><span class="pre">MALHeader.network_zone_flag</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.operation"><code class="docutils literal notranslate"><span class="pre">MALHeader.operation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.priority"><code class="docutils literal notranslate"><span class="pre">MALHeader.priority</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.priority_flag"><code class="docutils literal notranslate"><span class="pre">MALHeader.priority_flag</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.qos_level"><code class="docutils literal notranslate"><span class="pre">MALHeader.qos_level</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.sdu_type"><code class="docutils literal notranslate"><span class="pre">MALHeader.sdu_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.secondary_apid"><code class="docutils literal notranslate"><span class="pre">MALHeader.secondary_apid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.secondary_apid_qualifier"><code class="docutils literal notranslate"><span class="pre">MALHeader.secondary_apid_qualifier</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.segment_counter"><code class="docutils literal notranslate"><span class="pre">MALHeader.segment_counter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.service"><code class="docutils literal notranslate"><span class="pre">MALHeader.service</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.service_area"><code class="docutils literal notranslate"><span class="pre">MALHeader.service_area</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.session"><code class="docutils literal notranslate"><span class="pre">MALHeader.session</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.session_name"><code class="docutils literal notranslate"><span class="pre">MALHeader.session_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.session_name_flag"><code class="docutils literal notranslate"><span class="pre">MALHeader.session_name_flag</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.source_id"><code class="docutils literal notranslate"><span class="pre">MALHeader.source_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.source_id_flag"><code class="docutils literal notranslate"><span class="pre">MALHeader.source_id_flag</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.timestamp"><code class="docutils literal notranslate"><span class="pre">MALHeader.timestamp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.timestamp_flag"><code class="docutils literal notranslate"><span class="pre">MALHeader.timestamp_flag</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.transaction_id"><code class="docutils literal notranslate"><span class="pre">MALHeader.transaction_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.mo.html#minspp.mo.MALHeader.version"><code class="docutils literal notranslate"><span class="pre">MALHeader.version</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="minspp.pus.html">minspp.pus module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader"><code class="docutils literal notranslate"><span class="pre">PUSHeader</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader.ack"><code class="docutils literal notranslate"><span class="pre">PUSHeader.ack</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader.as_bytes"><code class="docutils literal notranslate"><span class="pre">PUSHeader.as_bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader.cuc_time"><code class="docutils literal notranslate"><span class="pre">PUSHeader.cuc_time</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader.from_bytes"><code class="docutils literal notranslate"><span class="pre">PUSHeader.from_bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader.has_time"><code class="docutils literal notranslate"><span class="pre">PUSHeader.has_time</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader.service_subtype"><code class="docutils literal notranslate"><span class="pre">PUSHeader.service_subtype</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader.service_type"><code class="docutils literal notranslate"><span class="pre">PUSHeader.service_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader.source_id"><code class="docutils literal notranslate"><span class="pre">PUSHeader.source_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="minspp.pus.html#minspp.pus.PUSHeader.version"><code class="docutils literal notranslate"><span class="pre">PUSHeader.version</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="minspp.utils.html">minspp.utils module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="minspp.utils.html#minspp.utils.cuc_as_datetime"><code class="docutils literal notranslate"><span class="pre">cuc_as_datetime()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="minspp.utils.html#minspp.utils.cuc_time_now"><code class="docutils literal notranslate"><span class="pre">cuc_time_now()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="minspp.utils.html#minspp.utils.mal_decode_string"><code class="docutils literal notranslate"><span class="pre">mal_decode_string()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="minspp.utils.html#minspp.utils.mal_encode_string"><code class="docutils literal notranslate"><span class="pre">mal_encode_string()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="minspp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="minspp.core.html" class="btn btn-neutral float-right" title="minspp.core module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024-2025, Nuno Carvalho.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

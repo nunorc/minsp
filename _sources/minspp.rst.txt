@@ -1,0 +1,18 @@
+minspp package
+==============
+
+.. automodule:: minspp
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   minspp.core
+   minspp.mo
+   minspp.pus
+   minspp.utils

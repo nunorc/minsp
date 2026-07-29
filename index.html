@@ -6,9 +6,9 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>minsp &mdash; minsp  documentation</title>
+  <title>minspp &mdash; minspp  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -31,7 +31,7 @@
           
           
           <a href="#" class="icon icon-home">
-            minsp
+            minspp
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -49,7 +49,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">minsp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">minspp</a></li>
 </ul>
 
         </div>
@@ -58,7 +58,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">minsp</a>
+          <a href="#">minspp</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -66,7 +66,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">minsp</li>
+      <li class="breadcrumb-item active">minspp</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -76,25 +76,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="minsp">
-<h1>minsp<a class="headerlink" href="#minsp" title="Link to this heading"></a></h1>
+  <section id="minspp">
+<h1>minspp<a class="headerlink" href="#minspp" title="Link to this heading"></a></h1>
 <p>Minimalistic implementation of the Space Packet specification from the CCSDS Space Packet Protocol standard.</p>
-<p><a class="reference external" href="https://github.com/nunorc/minsp">Repository</a> | <a class="reference external" href="https://nunorc.github.io/minsp">Documentation</a></p>
+<p><a class="reference external" href="https://github.com/nunorc/minspp">Repository</a> | <a class="reference external" href="https://nunorc.github.io/minspp">Documentation</a></p>
+<p>This package was formerly published as <code class="docutils literal notranslate"><span class="pre">minsp</span></code>, which is no longer updated.</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
 <p>Install using pip:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>minsp
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>minspp
 </pre></div>
 </div>
 <p>Install package from the git repository:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/nunorc/minsp@master
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/nunorc/minspp@master
 </pre></div>
 </div>
 </section>
 <section id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
 <p>Import the <code class="code docutils literal notranslate"><span class="pre">SpacePacket</span></code> class from the package:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minsp</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpacePacket</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minspp</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpacePacket</span>
 </pre></div>
 </div>
 <p>For example, to create a new space packet for APID 11 and an arbitrary data field:</p>
@@ -118,7 +119,7 @@
 </pre></div>
 </div>
 <p>Secondary header can have a custom data definition, or to use PUS:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minsp.pus</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUSHeader</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minspp.pus</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUSHeader</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pus_header</span> <span class="o">=</span> <span class="n">PUSHeader</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pus_header</span>
 <span class="go">PUSHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b&#39;&#39;)</span>
@@ -131,7 +132,7 @@
 </pre></div>
 </div>
 <p>Similar approach for a MAL secondary header:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minsp.mo</span><span class="w"> </span><span class="kn">import</span> <span class="n">MALHeader</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minspp.mo</span><span class="w"> </span><span class="kn">import</span> <span class="n">MALHeader</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mal_header</span> <span class="o">=</span> <span class="n">MALHeader</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mal_header</span>
 <span class="go">MALHeader(version=0, sdu_type=0, service_area=0, service=0, operation=0, area_version=0, is_error=0, qos_level=0, session=0, secondary_apid=0, secondary_apid_qualifier=0, transaction_id=0, source_id_flag=0, destination_id_flag=0, priority_flag=0, timestamp_flag=0, network_zone_flag=0, session_name_flag=0, domain_flag=0, authentication_id_flag=0, source_id=0, destination_id=0, segment_counter=0, priority=0, timestamp=None, network_zone=&#39;&#39;, session_name=&#39;&#39;, domain=&#39;&#39;, authentication_id=&#39;&#39;)</span>
@@ -157,14 +158,14 @@
 </div>
 <p>Use <code class="code docutils literal notranslate"><span class="pre">SpacePacketAssembler</span></code> to recover the data from a list
 of fragmented packets, for example consider the following packets:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minsp</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpacePacket</span><span class="p">,</span> <span class="n">SequenceFlag</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minspp</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpacePacket</span><span class="p">,</span> <span class="n">SequenceFlag</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp1</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="p">(</span><span class="n">sequence_flags</span><span class="o">=</span><span class="n">SequenceFlag</span><span class="o">.</span><span class="n">FIRST</span><span class="p">,</span> <span class="n">data_field</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;123&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp2</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="p">(</span><span class="n">sequence_flags</span><span class="o">=</span><span class="n">SequenceFlag</span><span class="o">.</span><span class="n">CONTINUATION</span><span class="p">,</span> <span class="n">data_field</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;456&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp3</span> <span class="o">=</span> <span class="n">SpacePacket</span><span class="p">(</span><span class="n">sequence_flags</span><span class="o">=</span><span class="n">SequenceFlag</span><span class="o">.</span><span class="n">LAST</span><span class="p">,</span> <span class="n">data_field</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;789&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To recover the fragmented payload by processing the individual packets:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minsp</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpacePacketAssembler</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">minspp</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpacePacketAssembler</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">spa</span> <span class="o">=</span> <span class="n">SpacePacketAssembler</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">spa</span><span class="o">.</span><span class="n">process_packet</span><span class="p">(</span><span class="n">sp1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">spa</span><span class="o">.</span><span class="n">process_packet</span><span class="p">(</span><span class="n">sp2</span><span class="p">)</span>
@@ -194,8 +195,8 @@ of fragmented packets, for example consider the following packets:</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">minsp</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="minsp.html">minsp package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">minspp</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="minspp.html">minspp package</a></li>
 </ul>
 </li>
 </ul>

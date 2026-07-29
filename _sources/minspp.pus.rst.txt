@@ -1,7 +1,7 @@
-minsp.core module
+minspp.pus module
 =================
 
-.. automodule:: minsp.core
+.. automodule:: minspp.pus
    :members:
    :show-inheritance:
    :undoc-members:

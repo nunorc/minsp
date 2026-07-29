@@ -1,0 +1,7 @@
+minspp.utils module
+===================
+
+.. automodule:: minspp.utils
+   :members:
+   :show-inheritance:
+   :undoc-members:
