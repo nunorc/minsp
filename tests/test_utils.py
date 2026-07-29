@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from minspp.utils import (CRC16_SEED, CUC_COARSE_LENGTH, CUC_EPOCH, CUC_FINE_LENGTH,
-                          CUC_TIME_LENGTH, MAL_STRING_LENGTH_SIZE, crc16_ccitt,
+                          CUC_TIME_LENGTH, MAL_STRING_LENGTH_SIZE, check_field, crc16_ccitt,
                           cuc_as_datetime, cuc_time_now, mal_decode_string, mal_encode_string)
 
 def test_cuc_time_now_default_length():
@@ -39,6 +39,25 @@ def test_cuc_time_now_invalid_length():
 def test_cuc_as_datetime_insufficient_data():
     with pytest.raises(ValueError):
         cuc_as_datetime(b'\x00\x00')
+
+def test_check_field_in_range():
+    assert check_field('field', 0, 4) is None
+    assert check_field('field', 15, 4) is None
+    assert check_field('field', 255, 8) is None
+    assert check_field('field', 1, 8, minimum=1) is None
+
+    # a zero width field, i.e. one that is absent, only holds zero
+    assert check_field('field', 0, 0) is None
+
+def test_check_field_out_of_range():
+    for value, bits, minimum in [(16, 4, 0), (-1, 4, 0), (256, 8, 0),
+                                 (0, 8, 1), (1, 0, 0)]:
+        with pytest.raises(ValueError):
+            check_field('field', value, bits, minimum=minimum)
+
+def test_check_field_error_message():
+    with pytest.raises(ValueError, match=r'Invalid APID 2048, must be between 0 and 2047\.'):
+        check_field('APID', 2048, 11)
 
 def test_cuc_epoch_default_is_the_unix_epoch():
     assert CUC_EPOCH == datetime(1970, 1, 1, tzinfo=timezone.utc)

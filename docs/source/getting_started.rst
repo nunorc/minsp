@@ -138,6 +138,38 @@ Telecommand packets use a different secondary header layout, implemented by the
    >>> PUSTCHeader()
    PUSTCHeader(version=2, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b'')
 
+Field values are checked when a packet or a header is packed, not when it is built.
+An out of range value raises a :code:`ValueError` instead of being silently masked
+or surfacing as a :code:`struct.error`, and the standard reserves service type and
+message subtype :code:`0`:
+
+.. code-block:: python
+
+   >>> PUSTCHeader(service_type=300).as_bytes()
+   Traceback (most recent call last):
+     ...
+   ValueError: Invalid service type 300, must be between 1 and 255.
+
+Decoding stays permissive, so a malformed packet can still be inspected. Use
+:code:`strict` (or :code:`pus_strict` on :code:`SpacePacket.from_bytes`) to reject a
+secondary header that is not valid PUS-C, i.e. one whose version is not :code:`2` or
+whose service type or subtype is the reserved :code:`0`:
+
+.. code-block:: python
+
+   >>> PUSTCHeader.from_bytes(b'\x10\x08\x01\x00').version   # a PUS-A header
+   1
+   >>> PUSTCHeader.from_bytes(b'\x10\x08\x01\x00', strict=True)
+   Traceback (most recent call last):
+     ...
+   ValueError: Invalid PUS version 1, must be 2 for PUS-C.
+
+Note that ECSS-E-ST-70-41C defines no time field for the TC secondary header,
+timestamps belong to telemetry. The :code:`has_time` and :code:`cuc_time` arguments
+of :code:`PUSTCHeader` are a mission specific extension for missions that extend the
+header, they are off by default and leaving them off keeps the header standard
+conformant.
+
 Similar approach for a MAL secondary header:
 
 .. code-block:: python

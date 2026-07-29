@@ -10,7 +10,13 @@ import struct
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from .utils import CUC_COARSE_LENGTH, CUC_EPOCH, CUC_TIME_LENGTH, cuc_time_now
+from .utils import CUC_COARSE_LENGTH, CUC_EPOCH, CUC_TIME_LENGTH, check_field, cuc_time_now
+
+PUS_VERSION: int = 2
+"""PUS version number of PUS-C, i.e. ECSS-E-ST-70-41C."""
+
+PUS_SERVICE_MINIMUM: int = 1
+"""Smallest valid service type and message subtype, the standard reserves `0`."""
 
 PUS_TC_SOURCE_ID_LENGTH: int = 1
 """Default length in octets of the TC source ID, the standard makes it mission defined."""
@@ -88,6 +94,19 @@ def fine_time_length(cuc_time_length: int, coarse_length: int = CUC_COARSE_LENGT
 
     return cuc_time_length - coarse_length
 
+def check_pus_version(version: int) -> None:
+    """
+    Checks that a PUS version number is the PUS-C one.
+
+    :param version: The PUS version number of a header.
+    :type version: int
+
+    :raises ValueError: Not a PUS-C version number.
+    """
+    if version != PUS_VERSION:
+        raise ValueError(f"Invalid PUS version {version}, "
+                         f"must be {PUS_VERSION} for PUS-C.")
+
 @dataclass
 class PUSTCHeader:
     """
@@ -95,24 +114,39 @@ class PUSTCHeader:
     header as used in CCSDS space packets.
 
     The PUS secondary header adds standardized metadata to a CCSDS space packet,
-    including service type, service subtype, source ID, and an optional timestamp
-    in CUC format. Use `PUSTMHeader` for telemetry packets, which use a different
-    field layout.
+    including service type, service subtype and source ID. Use `PUSTMHeader` for
+    telemetry packets, which use a different field layout.
+
+    ECSS-E-ST-70-41C §7.4.4.1 defines the TC secondary header as version,
+    acknowledgment flags, service type, message subtype and source ID, plus an
+    optional spare. There is no time field, timestamps belong to telemetry, so the
+    optional CUC time of this class (`has_time` and `cuc_time`) is a mission specific
+    extension and not part of PUS-C. It is off by default, and leaving it off keeps
+    the header standard conformant.
+
+    Field values are checked when the header is packed, not when it is built, and an
+    out of range value raises a `ValueError` rather than being silently masked.
+    Decoding stays permissive so that a malformed header can be inspected, use
+    `strict` to reject one instead.
 
     :param version: PUS version number, `2` for PUS-C (4 bits).
     :type version: int
     :param ack: Acknowledgment flags (4 bits).
     :type ack: int
-    :param service_type: PUS service type (1 byte).
+    :param service_type: PUS service type, `1` to `255`, the standard reserves `0`
+    (1 byte).
     :type service_type: int
-    :param service_subtype: PUS service subtype (1 byte).
+    :param service_subtype: PUS service subtype, `1` to `255`, the standard reserves
+    `0` (1 byte).
     :type service_subtype: int
     :param source_id: Identifier of the source application or subsystem
     (`source_id_length` bytes).
     :type source_id: int
-    :param has_time: Includes a CUC time in the header, default is `False`.
+    :param has_time: Includes a CUC time in the header, default is `False`. Not part
+    of PUS-C, only for missions that extend the TC secondary header.
     :type has_time: bool
-    :param cuc_time: Optional CUC-formatted timestamp (`cuc_time_length` bytes).
+    :param cuc_time: Optional CUC-formatted timestamp (`cuc_time_length` bytes), a
+    mission specific extension.
     :type cuc_time: bytes
     :param cuc_time_length: Length in bytes of the CUC timestamp, default is `7`.
     Ignored when `cuc_time` is given, in which case it is derived from it.
@@ -128,10 +162,10 @@ class PUSTCHeader:
     epoch. The standard makes the epoch mission defined.
     :type cuc_epoch: datetime
     """
-    version: int = 2
+    version: int = PUS_VERSION
     ack: int = 0
-    service_type: int = 1
-    service_subtype: int = 1
+    service_type: int = PUS_SERVICE_MINIMUM
+    service_subtype: int = PUS_SERVICE_MINIMUM
     source_id: int = 0
     has_time: bool = False
     cuc_time: bytes = b''
@@ -176,6 +210,7 @@ class PUSTCHeader:
         Packs the PUS TC header as a byte stream.
 
         :raises ValueError: Invalid source ID length.
+        :raises ValueError: Field value out of range.
 
         :return: PUS TC header bytes.
         :rtype: bytes
@@ -183,11 +218,16 @@ class PUSTCHeader:
         source_id_length = self.source_id_length
         if source_id_length < 0:
             raise ValueError("Invalid source ID length, must not be negative.")
-        source_id_mask = (1 << (8 * source_id_length)) - 1
 
-        first_byte = ((self.version & 0x0F) << 4) | (self.ack & 0x0F)
+        check_field("PUS version", self.version, 4)
+        check_field("acknowledgment flags", self.ack, 4)
+        check_field("service type", self.service_type, 8, minimum=PUS_SERVICE_MINIMUM)
+        check_field("service subtype", self.service_subtype, 8, minimum=PUS_SERVICE_MINIMUM)
+        check_field("source ID", self.source_id, 8 * source_id_length)
+
+        first_byte = (self.version << 4) | self.ack
         header = struct.pack(">BBB", first_byte, self.service_type, self.service_subtype) + \
-                 (self.source_id & source_id_mask).to_bytes(source_id_length, "big")
+                 self.source_id.to_bytes(source_id_length, "big")
 
         if not self.has_time:
             return header
@@ -198,18 +238,21 @@ class PUSTCHeader:
 
         return header + cuc_time
 
+    # pylint: disable=R0914
     @classmethod
     def from_bytes(cls, data: bytes, has_time: bool = False,
                    cuc_time_length: int = CUC_TIME_LENGTH,
                    source_id_length: int = PUS_TC_SOURCE_ID_LENGTH,
                    cuc_coarse_length: int = CUC_COARSE_LENGTH,
-                   cuc_epoch: datetime = CUC_EPOCH) -> "PUSTCHeader":
+                   cuc_epoch: datetime = CUC_EPOCH,
+                   strict: bool = False) -> "PUSTCHeader":
         """
         Unpacks a byte stream into a `PUSTCHeader` instance.
 
         :param data: The byte stream.
         :type data: bytes
-        :param has_time: Includes a CUC time in header.
+        :param has_time: Includes a CUC time in header, a mission specific extension
+        that is not part of PUS-C.
         :type has_time: bool
         :param cuc_time_length: Length in bytes of the CUC time, default is `7`.
         :type cuc_time_length: int
@@ -221,9 +264,15 @@ class PUSTCHeader:
         :param cuc_epoch: Epoch the CUC coarse time counts from, default is the Unix
         epoch.
         :type cuc_epoch: datetime
+        :param strict: Rejects a header that is not valid PUS-C, i.e. one whose
+        version is not `2` or whose service type or subtype is the reserved `0`,
+        default is `False`.
+        :type strict: bool
 
         :raises ValueError: Invalid source ID length.
         :raises ValueError: Insufficient data for PUS TC header.
+        :raises ValueError: Not a PUS-C version number, when `strict`.
+        :raises ValueError: Field value out of range, when `strict`.
         :raises ValueError: Invalid CUC coarse time length.
         :raises ValueError: Invalid CUC time length.
         :raises ValueError: Insufficient data for PUS TC header with CUC time.
@@ -240,6 +289,11 @@ class PUSTCHeader:
         source_id = int.from_bytes(data[3:header_length], "big")
         version = (first_byte >> 4) & 0x0F
         ack = first_byte & 0x0F
+
+        if strict:
+            check_pus_version(version)
+            check_field("service type", service_type, 8, minimum=PUS_SERVICE_MINIMUM)
+            check_field("service subtype", service_subtype, 8, minimum=PUS_SERVICE_MINIMUM)
 
         cuc_time = b''
         if has_time:
@@ -274,14 +328,21 @@ class PUSTMHeader:
     and the source ID is replaced by a message type counter and a destination ID,
     giving a 7 octet header followed by an optional CUC timestamp.
 
+    Field values are checked when the header is packed, not when it is built, and an
+    out of range value raises a `ValueError` rather than being silently masked.
+    Decoding stays permissive so that a malformed header can be inspected, use
+    `strict` to reject one instead.
+
     :param version: PUS version number, `2` for PUS-C (4 bits).
     :type version: int
     :param time_reference_status: Spacecraft time reference status, a mission
     defined value reporting the synchronization status of the time field (4 bits).
     :type time_reference_status: int
-    :param service_type: PUS service type (1 byte).
+    :param service_type: PUS service type, `1` to `255`, the standard reserves `0`
+    (1 byte).
     :type service_type: int
-    :param service_subtype: PUS message subtype (1 byte).
+    :param service_subtype: PUS message subtype, `1` to `255`, the standard reserves
+    `0` (1 byte).
     :type service_subtype: int
     :param message_type_counter: Count of messages of this service type and
     subtype generated by the application process (2 bytes).
@@ -307,10 +368,10 @@ class PUSTMHeader:
     epoch. The standard makes the epoch mission defined.
     :type cuc_epoch: datetime
     """
-    version: int = 2
+    version: int = PUS_VERSION
     time_reference_status: int = 0
-    service_type: int = 1
-    service_subtype: int = 1
+    service_type: int = PUS_SERVICE_MINIMUM
+    service_subtype: int = PUS_SERVICE_MINIMUM
     message_type_counter: int = 0
     destination_id: int = 0
     has_time: bool = False
@@ -356,6 +417,7 @@ class PUSTMHeader:
         Packs the PUS-C TM header as a byte stream.
 
         :raises ValueError: Invalid destination ID length.
+        :raises ValueError: Field value out of range.
 
         :return: PUS-C TM header bytes.
         :rtype: bytes
@@ -363,13 +425,19 @@ class PUSTMHeader:
         destination_id_length = self.destination_id_length
         if destination_id_length < 0:
             raise ValueError("Invalid destination ID length, must not be negative.")
-        destination_id_mask = (1 << (8 * destination_id_length)) - 1
 
-        first_byte = ((self.version & 0x0F) << 4) | (self.time_reference_status & 0x0F)
+        check_field("PUS version", self.version, 4)
+        check_field("time reference status", self.time_reference_status, 4)
+        check_field("service type", self.service_type, 8, minimum=PUS_SERVICE_MINIMUM)
+        check_field("service subtype", self.service_subtype, 8, minimum=PUS_SERVICE_MINIMUM)
+        check_field("message type counter", self.message_type_counter, 16)
+        check_field("destination ID", self.destination_id, 8 * destination_id_length)
+
+        first_byte = (self.version << 4) | self.time_reference_status
         header = struct.pack(">BBBH",
                              first_byte, self.service_type, self.service_subtype,
                              self.message_type_counter) + \
-                 (self.destination_id & destination_id_mask).to_bytes(destination_id_length, "big")
+                 self.destination_id.to_bytes(destination_id_length, "big")
 
         if not self.has_time:
             return header
@@ -386,7 +454,8 @@ class PUSTMHeader:
                    cuc_time_length: int = CUC_TIME_LENGTH,
                    destination_id_length: int = PUS_TM_DESTINATION_ID_LENGTH,
                    cuc_coarse_length: int = CUC_COARSE_LENGTH,
-                   cuc_epoch: datetime = CUC_EPOCH) -> "PUSTMHeader":
+                   cuc_epoch: datetime = CUC_EPOCH,
+                   strict: bool = False) -> "PUSTMHeader":
         """
         Unpacks a byte stream into a `PUSTMHeader` instance.
 
@@ -404,9 +473,15 @@ class PUSTMHeader:
         :param cuc_epoch: Epoch the CUC coarse time counts from, default is the Unix
         epoch.
         :type cuc_epoch: datetime
+        :param strict: Rejects a header that is not valid PUS-C, i.e. one whose
+        version is not `2` or whose service type or subtype is the reserved `0`,
+        default is `False`.
+        :type strict: bool
 
         :raises ValueError: Invalid destination ID length.
         :raises ValueError: Insufficient data for PUS TM header.
+        :raises ValueError: Not a PUS-C version number, when `strict`.
+        :raises ValueError: Field value out of range, when `strict`.
         :raises ValueError: Invalid CUC coarse time length.
         :raises ValueError: Invalid CUC time length.
         :raises ValueError: Insufficient data for PUS TM header with CUC time.
@@ -424,6 +499,11 @@ class PUSTMHeader:
         destination_id = int.from_bytes(data[5:header_length], "big")
         version = (first_byte >> 4) & 0x0F
         time_reference_status = first_byte & 0x0F
+
+        if strict:
+            check_pus_version(version)
+            check_field("service type", service_type, 8, minimum=PUS_SERVICE_MINIMUM)
+            check_field("service subtype", service_subtype, 8, minimum=PUS_SERVICE_MINIMUM)
 
         cuc_time = b''
         if has_time:

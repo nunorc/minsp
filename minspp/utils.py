@@ -15,6 +15,29 @@ convert between time scales.
 import struct
 from datetime import datetime, timezone, timedelta
 
+def check_field(name: str, value: int, bits: int, minimum: int = 0) -> None:
+    """
+    Checks that the value of a header field fits in the field.
+
+    Out of range values are rejected rather than silently masked or left to fail
+    later in `struct.pack`, so that every header field reports the same way.
+
+    :param name: Name of the field, used in the error message.
+    :type name: str
+    :param value: The value of the field.
+    :type value: int
+    :param bits: Width in bits of the field, `0` for a field that is absent.
+    :type bits: int
+    :param minimum: Smallest valid value, default is `0`.
+    :type minimum: int
+
+    :raises ValueError: Field value out of range.
+    """
+    maximum = (1 << bits) - 1
+
+    if not minimum <= value <= maximum:
+        raise ValueError(f"Invalid {name} {value}, must be between {minimum} and {maximum}.")
+
 CUC_EPOCH: datetime = datetime(1970, 1, 1, tzinfo=timezone.utc)
 """Default epoch of a CUC time, the Unix epoch. The standard makes the epoch mission
 defined, the CCSDS agency-standard epoch being 1958-01-01 TAI."""

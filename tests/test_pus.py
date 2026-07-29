@@ -4,10 +4,10 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from minspp import PacketType, SpacePacket
-from minspp.pus import (PUS_TC_HEADER_LENGTH, PUS_TC_SOURCE_ID_LENGTH,
-                        PUS_TM_DESTINATION_ID_LENGTH, PUS_TM_HEADER_LENGTH,
-                        PUSTCHeader, PUSTMHeader, fine_time_length, tc_header_length,
-                        tm_header_length)
+from minspp.pus import (PUS_SERVICE_MINIMUM, PUS_TC_HEADER_LENGTH, PUS_TC_SOURCE_ID_LENGTH,
+                        PUS_TM_DESTINATION_ID_LENGTH, PUS_TM_HEADER_LENGTH, PUS_VERSION,
+                        PUSTCHeader, PUSTMHeader, check_pus_version, fine_time_length,
+                        tc_header_length, tm_header_length)
 from minspp.utils import (CUC_COARSE_LENGTH, CUC_EPOCH, CUC_FINE_LENGTH, CUC_TIME_LENGTH,
                           cuc_as_datetime, cuc_time_now)
 
@@ -172,11 +172,15 @@ def test_pus_tc_header_source_id_lengths():
         assert h2.as_bytes() == bytes1
 
 def test_pus_tc_header_source_id_length_zero_omits_field():
-    header = PUSTCHeader(service_type=8, service_subtype=1, source_id=0x0102,
-                         source_id_length=0)
+    header = PUSTCHeader(service_type=8, service_subtype=1, source_id=0, source_id_length=0)
 
     assert header.as_bytes() == b'\x20\x08\x01'
     assert PUSTCHeader.from_bytes(header.as_bytes(), source_id_length=0).source_id == 0
+
+    # a source ID that does not fit the absent field is an error, not silently dropped
+    with pytest.raises(ValueError):
+        PUSTCHeader(service_type=8, service_subtype=1, source_id=0x0102,
+                    source_id_length=0).as_bytes()
 
 def test_pus_tc_header_source_id_16bit_with_time():
     h1 = PUSTCHeader(source_id=0xFFFF, source_id_length=2, has_time=True)
@@ -410,12 +414,17 @@ def test_pus_tm_header_destination_id_lengths():
         assert h2.as_bytes() == bytes1
 
 def test_pus_tm_header_destination_id_length_zero_omits_field():
-    header = PUSTMHeader(service_type=3, service_subtype=25, destination_id=0x0304,
+    header = PUSTMHeader(service_type=3, service_subtype=25, destination_id=0,
                          destination_id_length=0)
 
     assert header.as_bytes() == b'\x20\x03\x19\x00\x00'
     assert PUSTMHeader.from_bytes(header.as_bytes(),
                                   destination_id_length=0).destination_id == 0
+
+    # a destination ID that does not fit the absent field is an error, not dropped
+    with pytest.raises(ValueError):
+        PUSTMHeader(service_type=3, service_subtype=25, destination_id=0x0304,
+                    destination_id_length=0).as_bytes()
 
 def test_pus_tm_header_destination_id_32bit_with_time():
     h1 = PUSTMHeader(destination_id=0xDEADBEEF, destination_id_length=4, has_time=True)
@@ -642,6 +651,121 @@ def test_space_packet_pus_tm_destination_id_iter_packets():
     assert [p.secondary_header.destination_id for p in packets] == [0x0A, 0x0B]
     assert packets[0].data_field == b'\x01\x02'
     assert packets[1].data_field == b'\x03\x04\x05'
+
+def test_pus_header_defaults_are_pus_c():
+    assert PUSTCHeader().version == PUSTMHeader().version == PUS_VERSION == 2
+    assert PUSTCHeader().service_type == PUS_SERVICE_MINIMUM == 1
+
+def test_check_pus_version():
+    assert check_pus_version(PUS_VERSION) is None
+
+    # PUS-A, i.e. a version this package does not implement
+    with pytest.raises(ValueError):
+        check_pus_version(1)
+
+def test_pus_tc_header_out_of_range_fields():
+    # every out of range field raises, none is silently masked
+    for header in [PUSTCHeader(version=16), PUSTCHeader(version=-1),
+                   PUSTCHeader(ack=16), PUSTCHeader(service_type=256),
+                   PUSTCHeader(service_subtype=256), PUSTCHeader(source_id=256)]:
+        with pytest.raises(ValueError):
+            header.as_bytes()
+
+def test_pus_tm_header_out_of_range_fields():
+    for header in [PUSTMHeader(version=16), PUSTMHeader(time_reference_status=16),
+                   PUSTMHeader(service_type=256), PUSTMHeader(service_subtype=256),
+                   PUSTMHeader(message_type_counter=65536),
+                   PUSTMHeader(destination_id=65536)]:
+        with pytest.raises(ValueError):
+            header.as_bytes()
+
+def test_pus_header_reserved_service_values():
+    # the standard reserves service type and message subtype 0
+    with pytest.raises(ValueError):
+        PUSTCHeader(service_type=0).as_bytes()
+
+    with pytest.raises(ValueError):
+        PUSTCHeader(service_subtype=0).as_bytes()
+
+    with pytest.raises(ValueError):
+        PUSTMHeader(service_type=0).as_bytes()
+
+    with pytest.raises(ValueError):
+        PUSTMHeader(service_subtype=0).as_bytes()
+
+def test_pus_header_out_of_range_raises_value_error_not_struct_error():
+    # a field wider than its byte used to surface as a struct.error
+    with pytest.raises(ValueError):
+        PUSTCHeader(service_type=300).as_bytes()
+
+    with pytest.raises(ValueError):
+        PUSTMHeader(message_type_counter=70000).as_bytes()
+
+def test_pus_header_boundary_values_are_valid():
+    assert PUSTCHeader(version=15, ack=15, service_type=255, service_subtype=255,
+                       source_id=255).as_bytes() == b'\xff\xff\xff\xff'
+
+    assert PUSTMHeader(version=15, time_reference_status=15, service_type=255,
+                       service_subtype=255, message_type_counter=65535,
+                       destination_id=65535).as_bytes() == b'\xff\xff\xff\xff\xff\xff\xff'
+
+def test_pus_tc_header_strict_version():
+    # a PUS-A header, version 1 in the top nibble
+    data = b'\x10\x08\x01\x00'
+
+    assert PUSTCHeader.from_bytes(data).version == 1
+
+    with pytest.raises(ValueError):
+        PUSTCHeader.from_bytes(data, strict=True)
+
+    assert PUSTCHeader.from_bytes(PUSTCHeader().as_bytes(), strict=True) == PUSTCHeader()
+
+def test_pus_tm_header_strict_version():
+    data = PUSTMHeader(version=1).as_bytes()
+
+    assert PUSTMHeader.from_bytes(data).version == 1
+
+    with pytest.raises(ValueError):
+        PUSTMHeader.from_bytes(data, strict=True)
+
+    assert PUSTMHeader.from_bytes(PUSTMHeader().as_bytes(), strict=True) == PUSTMHeader()
+
+def test_pus_header_strict_rejects_reserved_service():
+    # service type 0 is reserved, and is only rejected when strict
+    data = b'\x20\x00\x01\x00'
+
+    assert PUSTCHeader.from_bytes(data).service_type == 0
+
+    with pytest.raises(ValueError):
+        PUSTCHeader.from_bytes(data, strict=True)
+
+def test_pus_header_decoding_stays_permissive():
+    # a malformed header can be inspected, re-encoding it is what raises
+    header = PUSTCHeader.from_bytes(b'\x10\x00\x01\x00')
+
+    assert header.version == 1
+    assert header.service_type == 0
+
+    with pytest.raises(ValueError):
+        header.as_bytes()
+
+def test_space_packet_pus_strict():
+    space_packet = SpacePacket(secondary_header=PUSTMHeader(version=1),
+                               data_field=b'\x01\x02')
+    bytes1 = space_packet.as_bytes()
+
+    assert SpacePacket.from_bytes(bytes1, pus_tm=True).secondary_header.version == 1
+
+    with pytest.raises(ValueError):
+        SpacePacket.from_bytes(bytes1, pus_tm=True, pus_strict=True)
+
+def test_space_packet_pus_strict_iter_packets():
+    good = SpacePacket(apid=1, secondary_header=PUSTMHeader(), data_field=b'\x01')
+    bad = SpacePacket(apid=2, secondary_header=PUSTMHeader(version=1), data_field=b'\x02')
+
+    with pytest.raises(ValueError):
+        list(SpacePacket.iter_packets(good.as_bytes() + bad.as_bytes(),
+                                      pus_tm=True, pus_strict=True))
 
 def test_space_packet_pus_tc_packet_error_control():
     tc_header = PUSTCHeader(service_type=8, service_subtype=1)

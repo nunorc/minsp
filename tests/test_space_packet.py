@@ -64,6 +64,43 @@ def test_space_packet_empty_data_field():
     with pytest.raises(ValueError):
         SpacePacket().as_bytes()
 
+def test_space_packet_out_of_range_fields():
+    # every out of range field raises, none is silently masked
+    for packet in [SpacePacket(version=8, data_field=b'\x01'),
+                   SpacePacket(version=-1, data_field=b'\x01'),
+                   SpacePacket(type=2, data_field=b'\x01'),
+                   SpacePacket(apid=2048, data_field=b'\x01'),
+                   SpacePacket(sequence_flags=4, data_field=b'\x01'),
+                   SpacePacket(sequence_count=16384, data_field=b'\x01')]:
+        with pytest.raises(ValueError):
+            packet.as_bytes()
+
+def test_space_packet_boundary_values_are_valid():
+    packet = SpacePacket(version=7, type=1, apid=2047, sequence_flags=3,
+                         sequence_count=16383, data_field=b'\x01')
+
+    # every field at its maximum, the secondary header flag stays 0
+    assert packet.as_bytes() == b'\xf7\xff\xff\xff\x00\x00\x01'
+
+def test_space_packet_apid_is_not_masked():
+    # APID 2059 is 11 too once masked to 11 bits, it must not silently become one
+    with pytest.raises(ValueError):
+        SpacePacket(apid=2059, data_field=b'\x01').as_bytes()
+
+def test_space_packet_data_field_too_long():
+    packet = SpacePacket(data_field=b'\x00' * (0x10000 + 1))
+
+    assert packet.data_length == 0x10000
+
+    with pytest.raises(ValueError):
+        packet.as_bytes()
+
+def test_space_packet_longest_data_field():
+    packet = SpacePacket(data_field=b'\x00' * 0x10000)
+
+    assert packet.data_length == 0xFFFF
+    assert len(packet.as_bytes()) == 6 + 0x10000
+
 def test_space_packet_from_bytes_bounded_by_data_length():
     packet = SpacePacket(data_field=b'testing')
 

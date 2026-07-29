@@ -161,6 +161,37 @@ in bytes (defaults to `1`, and `0` means the field is absent):
 b'\x10\x08\x01\x01\x02'
 ```
 
+Field values are checked when a packet or a header is packed, not when it is built.
+An out of range value raises a `ValueError` instead of being silently masked or
+surfacing as a `struct.error`, and the standard reserves service type and message
+subtype `0`:
+
+```python
+>>> PUSTCHeader(service_type=300).as_bytes()
+Traceback (most recent call last):
+  ...
+ValueError: Invalid service type 300, must be between 1 and 255.
+```
+
+Decoding stays permissive, so a malformed packet can still be inspected. Use
+`strict` (or `pus_strict` on `SpacePacket.from_bytes`) to reject a secondary header
+that is not valid PUS-C, i.e. one whose version is not `2` or whose service type or
+subtype is the reserved `0`:
+
+```python
+>>> PUSTCHeader.from_bytes(b'\x10\x08\x01\x00').version   # a PUS-A header
+1
+>>> PUSTCHeader.from_bytes(b'\x10\x08\x01\x00', strict=True)
+Traceback (most recent call last):
+  ...
+ValueError: Invalid PUS version 1, must be 2 for PUS-C.
+```
+
+Note that ECSS-E-ST-70-41C defines no time field for the TC secondary header,
+timestamps belong to telemetry. The `has_time` and `cuc_time` arguments of
+`PUSTCHeader` are a mission specific extension for missions that extend the header,
+they are off by default and leaving them off keeps the header standard conformant.
+
 Similar approach for a MAL secondary header:
 
 ```python

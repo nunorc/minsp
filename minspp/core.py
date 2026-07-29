@@ -10,7 +10,7 @@ import struct
 from .pus import (PUS_TC_SOURCE_ID_LENGTH, PUS_TM_DESTINATION_ID_LENGTH,
                   PUSTCHeader, PUSTMHeader)
 from .mo import MALHeader
-from .utils import CUC_COARSE_LENGTH, CUC_EPOCH, CUC_TIME_LENGTH, crc16_ccitt
+from .utils import CUC_COARSE_LENGTH, CUC_EPOCH, CUC_TIME_LENGTH, check_field, crc16_ccitt
 
 PACKET_ERROR_CONTROL_LENGTH: int = 2
 """Number of octets of the packet error control (CRC-16) field."""
@@ -116,11 +116,16 @@ class SpacePacket:
         attribute does not, it always describes the secondary header plus the data
         field.
 
+        Field values are checked here rather than when the packet is built, and an
+        out of range value raises a `ValueError` rather than being silently masked.
+
         :param packet_error_control: Append a packet error control field,
         default is `False`.
         :type packet_error_control: bool
 
         :raises ValueError: Empty packet data field, at least one octet is required.
+        :raises ValueError: Packet data field too long for the data length field.
+        :raises ValueError: Field value out of range.
 
         :return: Space packet bytes.
         :rtype: bytes
@@ -147,11 +152,22 @@ class SpacePacket:
         if data_length < 0:
             raise ValueError("Can't generate packet as bytes, packet data field is empty.")
 
-        first_word = ((self.version & 0x07) << 13) | \
-                     ((self.type & 0x01) << 12) | \
-                     ((self.secondary_header_flag & 0x01) << 11) | \
-                     (self.apid & 0x07FF)
-        second_word = ((self.sequence_flags & 0x03) << 14) | (self.sequence_count & 0x3FFF)
+        if data_length > 0xFFFF:
+            raise ValueError("Can't generate packet as bytes, packet data field is too long "
+                             f"for the data length field ({data_length} octets minus one).")
+
+        check_field("packet version", self.version, 3)
+        check_field("packet type", self.type, 1)
+        check_field("secondary header flag", self.secondary_header_flag, 1)
+        check_field("APID", self.apid, 11)
+        check_field("sequence flags", self.sequence_flags, 2)
+        check_field("sequence count", self.sequence_count, 14)
+
+        first_word = (self.version << 13) | \
+                     (self.type << 12) | \
+                     (self.secondary_header_flag << 11) | \
+                     self.apid
+        second_word = (self.sequence_flags << 14) | self.sequence_count
 
         header = struct.pack(">HHH", first_word, second_word, data_length)
         packet = header + payload
@@ -193,7 +209,7 @@ class SpacePacket:
         packet_error_control: bool = False, \
         pus_destination_id_length: int = PUS_TM_DESTINATION_ID_LENGTH, \
         pus_cuc_coarse_length: int = CUC_COARSE_LENGTH, \
-        pus_cuc_epoch: datetime = CUC_EPOCH) -> "SpacePacket":
+        pus_cuc_epoch: datetime = CUC_EPOCH, pus_strict: bool = False) -> "SpacePacket":
         """
         Unpacks a byte stream into a `SpacePacket` instance.
 
@@ -208,7 +224,8 @@ class SpacePacket:
         :type pus_tc: bool
         :param mal: Secondary header is a `MALHeader`.
         :type mal: bool
-        :param pus_has_time: PUS secondary header includes a CUC time.
+        :param pus_has_time: PUS secondary header includes a CUC time. For a TC
+        header this is a mission specific extension, PUS-C has no TC time field.
         :type pus_has_time: bool
         :param pus_cuc_time_length: Length in bytes of the PUS CUC time, default is `7`.
         :type pus_cuc_time_length: int
@@ -230,6 +247,10 @@ class SpacePacket:
         :param pus_cuc_epoch: Epoch the PUS CUC coarse time counts from, default is
         the Unix epoch. The standard makes the epoch mission defined.
         :type pus_cuc_epoch: datetime
+        :param pus_strict: Rejects a PUS secondary header that is not valid PUS-C,
+        i.e. one whose version is not `2` or whose service type or subtype is the
+        reserved `0`, default is `False`.
+        :type pus_strict: bool
 
         :raises ValueError: Insufficient data for space packet primary header.
         :raises ValueError: Both `pus_tc` and `pus_tm` are set.
@@ -266,7 +287,8 @@ class SpacePacket:
                     cuc_time_length=pus_cuc_time_length,
                     source_id_length=pus_source_id_length,
                     cuc_coarse_length=pus_cuc_coarse_length,
-                    cuc_epoch=pus_cuc_epoch)
+                    cuc_epoch=pus_cuc_epoch,
+                    strict=pus_strict)
                 data_field = data[6+len(secondary_header.as_bytes()):]
             elif pus_tm:
                 secondary_header = PUSTMHeader.from_bytes(
@@ -274,7 +296,8 @@ class SpacePacket:
                     cuc_time_length=pus_cuc_time_length,
                     destination_id_length=pus_destination_id_length,
                     cuc_coarse_length=pus_cuc_coarse_length,
-                    cuc_epoch=pus_cuc_epoch)
+                    cuc_epoch=pus_cuc_epoch,
+                    strict=pus_strict)
                 data_field = data[6+len(secondary_header.as_bytes()):]
             elif mal:
                 secondary_header = MALHeader.from_bytes(data[6:])
@@ -310,7 +333,7 @@ class SpacePacket:
         packet_error_control: bool = False, \
         pus_destination_id_length: int = PUS_TM_DESTINATION_ID_LENGTH, \
         pus_cuc_coarse_length: int = CUC_COARSE_LENGTH, \
-        pus_cuc_epoch: datetime = CUC_EPOCH):
+        pus_cuc_epoch: datetime = CUC_EPOCH, pus_strict: bool = False):
         """
         Unpacks a byte stream of back to back space packets, yielding one
         `SpacePacket` per packet found. Every packet in the stream must share the
@@ -325,7 +348,8 @@ class SpacePacket:
         :type pus_tc: bool
         :param mal: Secondary header is a `MALHeader`.
         :type mal: bool
-        :param pus_has_time: PUS secondary header includes a CUC time.
+        :param pus_has_time: PUS secondary header includes a CUC time. For a TC
+        header this is a mission specific extension, PUS-C has no TC time field.
         :type pus_has_time: bool
         :param pus_cuc_time_length: Length in bytes of the PUS CUC time, default is `7`.
         :type pus_cuc_time_length: int
@@ -347,6 +371,10 @@ class SpacePacket:
         :param pus_cuc_epoch: Epoch the PUS CUC coarse time counts from, default is
         the Unix epoch. The standard makes the epoch mission defined.
         :type pus_cuc_epoch: datetime
+        :param pus_strict: Rejects a PUS secondary header that is not valid PUS-C,
+        i.e. one whose version is not `2` or whose service type or subtype is the
+        reserved `0`, default is `False`.
+        :type pus_strict: bool
 
         :raises ValueError: Insufficient data for space packet primary header.
         :raises ValueError: Insufficient data for the declared packet data length.
@@ -369,7 +397,8 @@ class SpacePacket:
                                  packet_error_control=packet_error_control,
                                  pus_destination_id_length=pus_destination_id_length,
                                  pus_cuc_coarse_length=pus_cuc_coarse_length,
-                                 pus_cuc_epoch=pus_cuc_epoch)
+                                 pus_cuc_epoch=pus_cuc_epoch,
+                                 pus_strict=pus_strict)
 
             offset += packet_length
 
