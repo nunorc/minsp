@@ -205,7 +205,7 @@ def test_new_pus_tm_header():
     tm_header = PUSTMHeader()
 
     assert tm_header.version == 2
-    assert tm_header.spare == 0
+    assert tm_header.time_reference_status == 0
     assert tm_header.service_type == 1
     assert tm_header.service_subtype == 1
     assert tm_header.message_type_counter == 0
@@ -223,11 +223,11 @@ def test_pus_tm_header_layout():
     assert len(data) == PUS_TM_HEADER_LENGTH == 7
     assert data == b'\x20\x03\x19\x01\x02\x03\x04'
 
-def test_pus_tm_header_spare_nibble():
-    tm_header = PUSTMHeader(version=2, spare=0x0F)
+def test_pus_tm_header_time_reference_status_nibble():
+    tm_header = PUSTMHeader(version=2, time_reference_status=0x0F)
 
     assert tm_header.as_bytes()[0] == 0x2F
-    assert PUSTMHeader.from_bytes(tm_header.as_bytes()).spare == 0x0F
+    assert PUSTMHeader.from_bytes(tm_header.as_bytes()).time_reference_status == 0x0F
 
 def test_pus_tm_header_bytes():
     h1 = PUSTMHeader(service_type=5, service_subtype=4,

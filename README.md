@@ -72,7 +72,7 @@ packets use the PUS-C (ECSS-E-ST-70-41C) TM secondary header:
 >>> from minspp.pus import PUSTMHeader
 >>> pus_header = PUSTMHeader()
 >>> pus_header
-PUSTMHeader(version=2, spare=0, service_type=1, service_subtype=1, message_type_counter=0, destination_id=0, has_time=False, cuc_time=b'')
+PUSTMHeader(version=2, time_reference_status=0, service_type=1, service_subtype=1, message_type_counter=0, destination_id=0, has_time=False, cuc_time=b'')
 ```
 
 And create a new packet with the PUS header:
@@ -80,7 +80,7 @@ And create a new packet with the PUS header:
 ```python
 >>> space_packet = SpacePacket(secondary_header=pus_header)
 >>> space_packet
-SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=1, apid=0, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=6, secondary_header=PUSTMHeader(version=2, spare=0, service_type=1, service_subtype=1, message_type_counter=0, destination_id=0, has_time=False, cuc_time=b''), data_field=b'')
+SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=1, apid=0, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=6, secondary_header=PUSTMHeader(version=2, time_reference_status=0, service_type=1, service_subtype=1, message_type_counter=0, destination_id=0, has_time=False, cuc_time=b''), data_field=b'')
 ```
 
 For example a housekeeping parameter report (service 3, subtype 25) for
@@ -132,7 +132,7 @@ To create a space packet from a byte stream including a PUS header, use
 ```python
 >>> byte_stream = SpacePacket(secondary_header=pus_header).as_bytes()
 >>> SpacePacket.from_bytes(byte_stream, pus_tm=True)
-SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=1, apid=0, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=6, secondary_header=PUSTMHeader(version=2, spare=0, service_type=1, service_subtype=1, message_type_counter=0, destination_id=0, has_time=False, cuc_time=b''), data_field=b'')
+SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=1, apid=0, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=6, secondary_header=PUSTMHeader(version=2, time_reference_status=0, service_type=1, service_subtype=1, message_type_counter=0, destination_id=0, has_time=False, cuc_time=b''), data_field=b'')
 ```
 
 A TC header with a non default source ID width must be decoded with the same

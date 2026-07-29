@@ -212,14 +212,15 @@ class PUSTMHeader:
     in CCSDS space packets.
 
     The TM secondary header layout differs from the telecommand one (`PUSTCHeader`):
-    the acknowledgment flags are replaced by a spare nibble, and the source ID is
-    replaced by a message type counter and a destination ID, giving a 7 octet
-    header followed by an optional CUC timestamp.
+    the acknowledgment flags are replaced by the spacecraft time reference status,
+    and the source ID is replaced by a message type counter and a destination ID,
+    giving a 7 octet header followed by an optional CUC timestamp.
 
     :param version: PUS version number, `2` for PUS-C (4 bits).
     :type version: int
-    :param spare: Spare field, only for telemetry (4 bits).
-    :type spare: int
+    :param time_reference_status: Spacecraft time reference status, a mission
+    defined value reporting the synchronization status of the time field (4 bits).
+    :type time_reference_status: int
     :param service_type: PUS service type (1 byte).
     :type service_type: int
     :param service_subtype: PUS message subtype (1 byte).
@@ -239,7 +240,7 @@ class PUSTMHeader:
     :type cuc_time_length: int
     """
     version: int = 2
-    spare: int = 0
+    time_reference_status: int = 0
     service_type: int = 1
     service_subtype: int = 1
     message_type_counter: int = 0
@@ -272,7 +273,7 @@ class PUSTMHeader:
         :return: PUS-C TM header bytes.
         :rtype: bytes
         """
-        first_byte = ((self.version & 0x0F) << 4) | (self.spare & 0x0F)
+        first_byte = ((self.version & 0x0F) << 4) | (self.time_reference_status & 0x0F)
         header = struct.pack(">BBBHH",
                              first_byte, self.service_type, self.service_subtype,
                              self.message_type_counter, self.destination_id)
@@ -310,7 +311,7 @@ class PUSTMHeader:
         first_byte, service_type, service_subtype, message_type_counter, destination_id = \
             struct.unpack(">BBBHH", data[:PUS_TM_HEADER_LENGTH])
         version = (first_byte >> 4) & 0x0F
-        spare = first_byte & 0x0F
+        time_reference_status = first_byte & 0x0F
 
         cuc_time = b''
         if has_time:
@@ -322,7 +323,7 @@ class PUSTMHeader:
 
         return cls(
             version=version,
-            spare=spare,
+            time_reference_status=time_reference_status,
             service_type=service_type,
             service_subtype=service_subtype,
             message_type_counter=message_type_counter,
