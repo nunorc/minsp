@@ -8,6 +8,7 @@ import struct
 
 from .pus import PUSHeader
 from .mo import MALHeader
+from .utils import CUC_TIME_LENGTH
 
 class PacketType(int, Enum):
     """
@@ -132,7 +133,8 @@ class SpacePacket:
     # pylint: disable=R1720
     @classmethod
     def from_bytes(cls, data: bytes, secondary_header_length: int = 0, \
-        pus: bool = False, mal: bool = False) -> "SpacePacket":
+        pus: bool = False, mal: bool = False, pus_has_time: bool = False, \
+        pus_cuc_time_length: int = CUC_TIME_LENGTH) -> "SpacePacket":
         """
         Unpacks a byte stream into a `SpacePacket` instance.
 
@@ -144,6 +146,10 @@ class SpacePacket:
         :type pus: bool
         :param pus: Secondary header is a MAL header.
         :type pus: bool
+        :param pus_has_time: PUS secondary header includes a CUC time.
+        :type pus_has_time: bool
+        :param pus_cuc_time_length: Length in bytes of the PUS CUC time, default is `7`.
+        :type pus_cuc_time_length: int
 
         :raises ValueError: Insufficient data for space packet primary header.
         :raises ValueError: Secondary header flag bit is set to 1, but secondary header length is 0.
@@ -158,7 +164,8 @@ class SpacePacket:
 
         if header["secondary_header_flag"] == 1:
             if pus:
-                secondary_header = PUSHeader.from_bytes(data[6:])
+                secondary_header = PUSHeader.from_bytes(data[6:], has_time=pus_has_time,
+                                                        cuc_time_length=pus_cuc_time_length)
                 data_field = data[6+len(secondary_header.as_bytes()):]
             elif mal:
                 secondary_header = MALHeader.from_bytes(data[6:])

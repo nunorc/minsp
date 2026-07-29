@@ -3,9 +3,9 @@ The `minspp.pus` module provides PUS header related classes.
 """
 
 import struct
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from .utils import cuc_time_now
+from .utils import CUC_COARSE_LENGTH, CUC_TIME_LENGTH, cuc_time_now
 
 @dataclass
 class PUSHeader:
@@ -29,8 +29,11 @@ class PUSHeader:
     :type source_id: int
     :param has_time: Sequence count, default is `0` (14 bits).
     :type has_time: bool
-    :param cuc_time: Optional CUC-formatted timestamp (7 bytes).
+    :param cuc_time: Optional CUC-formatted timestamp (`cuc_time_length` bytes).
     :param cuc_time: bytes.
+    :param cuc_time_length: Length in bytes of the CUC timestamp, default is `7`.
+    Ignored when `cuc_time` is given, in which case it is derived from it.
+    :type cuc_time_length: int
     """
     version: int = 1
     ack: int = 0
@@ -39,10 +42,27 @@ class PUSHeader:
     source_id: int = 0
     has_time: bool = False
     cuc_time: bytes = b''
+    cuc_time_length: int = field(default=CUC_TIME_LENGTH, repr=False)
 
     def __post_init__(self):
-        if self.has_time and len(self.cuc_time) == 0:
-            self.cuc_time = cuc_time_now()
+        if self.cuc_time:
+            self.cuc_time_length = len(self.cuc_time)
+        elif self.has_time:
+            self.cuc_time = cuc_time_now(fine_length=self.fine_time_length())
+
+    def fine_time_length(self) -> int:
+        """
+        Number of bytes of the fine time (sub-seconds) part of the CUC timestamp.
+
+        :raises ValueError: Invalid CUC time length.
+
+        :return: The fine time length.
+        :rtype: int
+        """
+        if self.cuc_time_length < CUC_COARSE_LENGTH:
+            raise ValueError(f"Invalid CUC time length, must be at least {CUC_COARSE_LENGTH}.")
+
+        return self.cuc_time_length - CUC_COARSE_LENGTH
 
     def as_bytes(self) -> bytes:
         """
@@ -55,17 +75,16 @@ class PUSHeader:
         header = struct.pack(">BBBB",
                             first_byte, self.service_type, self.service_subtype, self.source_id)
 
-        # pylint: disable=R1705
-        if self.has_time:
-            if self.cuc_time:
-                return header + self.cuc_time
-            else:
-                return header + cuc_time_now()
-        else:
+        if not self.has_time:
             return header
 
+        cuc_time = self.cuc_time or cuc_time_now(fine_length=self.fine_time_length())
+
+        return header + cuc_time
+
     @classmethod
-    def from_bytes(cls, data: bytes, has_time: bool = False) -> "PUSHeader":
+    def from_bytes(cls, data: bytes, has_time: bool = False,
+                   cuc_time_length: int = CUC_TIME_LENGTH) -> "PUSHeader":
         """
         Unpacks a byte stream into a `PUSHeader` instance.
 
@@ -73,8 +92,11 @@ class PUSHeader:
         :type data: bytes
         :param has_time: Includes a CUC time in header.
         :type has_time: bool
+        :param cuc_time_length: Length in bytes of the CUC time, default is `7`.
+        :type cuc_time_length: int
 
         :raises ValueError: Insufficient data for PUS header.
+        :raises ValueError: Invalid CUC time length.
         :raises ValueError: Insufficient data for PUS header with CUC time.
 
         :return: A new `PUSHeader`.
@@ -89,9 +111,11 @@ class PUSHeader:
 
         cuc_time = b''
         if has_time:
-            if len(data) < 8:
+            if cuc_time_length < CUC_COARSE_LENGTH:
+                raise ValueError(f"Invalid CUC time length, must be at least {CUC_COARSE_LENGTH}.")
+            if len(data) < 4 + cuc_time_length:
                 raise ValueError("Insufficient data for PUS header with CUC time.")
-            cuc_time = data[4:8]
+            cuc_time = data[4:4+cuc_time_length]
 
         return cls(
             version=version,
@@ -100,5 +124,6 @@ class PUSHeader:
             service_subtype=service_subtype,
             source_id=source_id,
             has_time=has_time,
-            cuc_time=cuc_time
+            cuc_time=cuc_time,
+            cuc_time_length=cuc_time_length
         )
