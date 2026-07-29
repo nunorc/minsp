@@ -66,7 +66,7 @@ class PUSTCHeader:
     in CUC format. Use `PUSTMHeader` for telemetry packets, which use a different
     field layout.
 
-    :param version: PUS version number (4 bits).
+    :param version: PUS version number, `2` for PUS-C (4 bits).
     :type version: int
     :param ack: Acknowledgment flags (4 bits).
     :type ack: int
@@ -88,7 +88,7 @@ class PUSTCHeader:
     standard makes this width mission defined, `0` means the field is absent.
     :type source_id_length: int
     """
-    version: int = 1
+    version: int = 2
     ack: int = 0
     service_type: int = 1
     service_subtype: int = 1

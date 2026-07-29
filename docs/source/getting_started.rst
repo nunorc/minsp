@@ -68,7 +68,7 @@ Telecommand packets use a different secondary header layout, implemented by the
 
    >>> from minspp.pus import PUSTCHeader
    >>> PUSTCHeader()
-   PUSTCHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b'')
+   PUSTCHeader(version=2, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b'')
 
 Similar approach for a MAL secondary header:
 

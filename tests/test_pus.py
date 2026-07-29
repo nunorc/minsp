@@ -11,7 +11,7 @@ from minspp.utils import CUC_TIME_LENGTH, cuc_as_datetime, cuc_time_now
 def test_new_pus_tc_header():
     pus_header = PUSTCHeader()
 
-    assert pus_header.version == 1
+    assert pus_header.version == 2
     assert pus_header.ack == 0
     assert pus_header.service_type == 1
     assert pus_header.service_subtype == 1
@@ -36,7 +36,7 @@ def test_space_packet_pus_tc():
     space_packet = SpacePacket(secondary_header=pus_header)
     
     assert isinstance(space_packet.secondary_header, PUSTCHeader)
-    assert space_packet.secondary_header.version == 1
+    assert space_packet.secondary_header.version == 2
 
 def test_space_packet_pus_tc_bytes():
     pus_header = PUSTCHeader()
@@ -172,7 +172,7 @@ def test_pus_tc_header_source_id_length_zero_omits_field():
     header = PUSTCHeader(service_type=8, service_subtype=1, source_id=0x0102,
                          source_id_length=0)
 
-    assert header.as_bytes() == b'\x10\x08\x01'
+    assert header.as_bytes() == b'\x20\x08\x01'
     assert PUSTCHeader.from_bytes(header.as_bytes(), source_id_length=0).source_id == 0
 
 def test_pus_tc_header_source_id_16bit_with_time():
