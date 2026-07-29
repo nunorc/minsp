@@ -3,10 +3,16 @@ name = "minspp"
 version = "0.0.6"
 description = "minimalistic implementation of the Space Packet specification from the CCSDS Space Packet Protocol standard"
 authors = [{ name = "Nuno Carvalho", email = "narcarvalho@gmail.com" }]
-requires-python = "~=3.10"
+requires-python = ">=3.10"
 readme = "README.md"
 license-files = ["LICENSE.txt"]
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/nunorc/minspp"
+Documentation = "https://nunorc.github.io/minspp"
+Repository = "https://github.com/nunorc/minspp"
+Issues = "https://github.com/nunorc/minspp/issues"
 
 [dependency-groups]
 dev = [
