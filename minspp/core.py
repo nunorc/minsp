@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 import struct
 
-from .pus import PUSHeader
+from .pus import PUSTCHeader, PUSTMHeader
 from .mo import MALHeader
 from .utils import CUC_TIME_LENGTH
 
@@ -45,8 +45,9 @@ class SpacePacket:
     According to the CCSDS standard:
     * The primary header is 6 bytes long and contains version, packet type, APID,
     sequence info, and length.
-    * The secondary header can be an custom stream of bytes, and instance of `PUSheader`
-    or an instance of `MALHeader`.
+    * The secondary header can be an custom stream of bytes, an instance of `PUSTCHeader`
+    (telecommand), an instance of `PUSTMHeader` (PUS-C telemetry) or an instance
+    of `MALHeader`.
     * The data length field (data_length) defines the number of bytes after the primary
     header minus one.
     * This class allows serialization to and from byte streams.
@@ -66,7 +67,7 @@ class SpacePacket:
     :param data_length: Packet data field length of the data following
     the primary header minus one, defaults is `0` (16 bits).
     :param secondary_header: Secondary header.
-    :type secondary_header: bytes|`PUSHeader`|`MALHeader`
+    :type secondary_header: bytes|`PUSTCHeader`|`PUSTMHeader`|`MALHeader`
     :param data_field: Packet data.
     :type data_field: bytes
     """
@@ -78,14 +79,14 @@ class SpacePacket:
     sequence_count: int = 0
     data_length: int = 0
 
-    secondary_header: bytes|PUSHeader|MALHeader = b''
+    secondary_header: bytes|PUSTCHeader|PUSTMHeader|MALHeader = b''
     data_field: bytes = b''
 
     def __post_init__(self):
 
         # update data length
         size = 0
-        if isinstance(self.secondary_header, (PUSHeader, MALHeader)):
+        if isinstance(self.secondary_header, (PUSTCHeader, PUSTMHeader, MALHeader)):
             size += len(self.secondary_header.as_bytes())
         else:
             size += len(self.secondary_header)
@@ -108,7 +109,9 @@ class SpacePacket:
         """
         if isinstance(self.secondary_header, bytes):
             sec_hdr = self.secondary_header
-        elif isinstance(self.secondary_header, PUSHeader):
+        elif isinstance(self.secondary_header, PUSTCHeader):
+            sec_hdr = self.secondary_header.as_bytes()
+        elif isinstance(self.secondary_header, PUSTMHeader):
             sec_hdr = self.secondary_header.as_bytes()
         elif isinstance(self.secondary_header, MALHeader):
             sec_hdr = self.secondary_header.as_bytes()
@@ -133,8 +136,8 @@ class SpacePacket:
     # pylint: disable=R1720
     @classmethod
     def from_bytes(cls, data: bytes, secondary_header_length: int = 0, \
-        pus: bool = False, mal: bool = False, pus_has_time: bool = False, \
-        pus_cuc_time_length: int = CUC_TIME_LENGTH) -> "SpacePacket":
+        pus_tc: bool = False, mal: bool = False, pus_has_time: bool = False, \
+        pus_cuc_time_length: int = CUC_TIME_LENGTH, pus_tm: bool = False) -> "SpacePacket":
         """
         Unpacks a byte stream into a `SpacePacket` instance.
 
@@ -142,16 +145,19 @@ class SpacePacket:
         :type data: bytes
         :param secondary_header_length: Secondary header length if present, default is `0`.
         :type secondary_header_length: int
-        :param pus: Secondary header is a PUS header.
-        :type pus: bool
-        :param pus: Secondary header is a MAL header.
-        :type pus: bool
+        :param pus_tc: Secondary header is a `PUSTCHeader`.
+        :type pus_tc: bool
+        :param mal: Secondary header is a `MALHeader`.
+        :type mal: bool
         :param pus_has_time: PUS secondary header includes a CUC time.
         :type pus_has_time: bool
         :param pus_cuc_time_length: Length in bytes of the PUS CUC time, default is `7`.
         :type pus_cuc_time_length: int
+        :param pus_tm: Secondary header is a `PUSTMHeader`.
+        :type pus_tm: bool
 
         :raises ValueError: Insufficient data for space packet primary header.
+        :raises ValueError: Both `pus_tc` and `pus_tm` are set.
         :raises ValueError: Secondary header flag bit is set to 1, but secondary header length is 0.
 
         :return: A new `SpacePacket`.
@@ -160,12 +166,19 @@ class SpacePacket:
         if len(data) < 6:
             raise ValueError("Insufficient data for space packet primary header.")
 
+        if pus_tc and pus_tm:
+            raise ValueError("Secondary header can't be both a PUS TC and a PUS TM header.")
+
         header = cls.header_from_bytes(data[:6])
 
         if header["secondary_header_flag"] == 1:
-            if pus:
-                secondary_header = PUSHeader.from_bytes(data[6:], has_time=pus_has_time,
-                                                        cuc_time_length=pus_cuc_time_length)
+            if pus_tc:
+                secondary_header = PUSTCHeader.from_bytes(data[6:], has_time=pus_has_time,
+                                                          cuc_time_length=pus_cuc_time_length)
+                data_field = data[6+len(secondary_header.as_bytes()):]
+            elif pus_tm:
+                secondary_header = PUSTMHeader.from_bytes(data[6:], has_time=pus_has_time,
+                                                          cuc_time_length=pus_cuc_time_length)
                 data_field = data[6+len(secondary_header.as_bytes()):]
             elif mal:
                 secondary_header = MALHeader.from_bytes(data[6:])

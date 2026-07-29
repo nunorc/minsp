@@ -34,7 +34,7 @@ For example, to create a new space packet for APID 11 and an arbitrary data fiel
 ```python
 >>> space_packet = SpacePacket(apid=11, data_field=b'hello')
 >>> space_packet
-SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=0, apid=11,sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=4, secondary_header=b'', data_field=b'hello')
+SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=0, apid=11, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=4, secondary_header=b'', data_field=b'hello')
 ```
 
 To get the bytes representation of the packet:
@@ -55,13 +55,14 @@ SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=0, apid=11
 b'hello'
 ```
 
-Secondary header can have a custom data definition, or to use PUS:
+Secondary header can have a custom data definition, or to use PUS. Telemetry
+packets use the PUS-C (ECSS-E-ST-70-41C) TM secondary header:
 
 ```python
->>> from minspp.pus import PUSHeader
->>> pus_header = PUSHeader()
+>>> from minspp.pus import PUSTMHeader
+>>> pus_header = PUSTMHeader()
 >>> pus_header
-PUSHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b'')
+PUSTMHeader(version=2, spare=0, service_type=1, service_subtype=1, message_type_counter=0, destination_id=0, has_time=False, cuc_time=b'')
 ```
 
 And create a new packet with the PUS header:
@@ -69,7 +70,25 @@ And create a new packet with the PUS header:
 ```python
 >>> space_packet = SpacePacket(secondary_header=pus_header)
 >>> space_packet
-SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=1, apid=0, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=3, secondary_header=PUSHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b''), data_field=b'')
+SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=1, apid=0, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=6, secondary_header=PUSTMHeader(version=2, spare=0, service_type=1, service_subtype=1, message_type_counter=0, destination_id=0, has_time=False, cuc_time=b''), data_field=b'')
+```
+
+For example a housekeeping parameter report (service 3, subtype 25) for
+destination 42:
+
+```python
+>>> tm_header = PUSTMHeader(service_type=3, service_subtype=25, message_type_counter=7, destination_id=42)
+>>> tm_header.as_bytes()
+b' \x03\x19\x00\x07\x00*'
+```
+
+Telecommand packets use a different secondary header layout, implemented by the
+`PUSTCHeader` class:
+
+```python
+>>> from minspp.pus import PUSTCHeader
+>>> PUSTCHeader()
+PUSTCHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b'')
 ```
 
 Similar approach for a MAL secondary header:
@@ -89,12 +108,13 @@ And to create a new packet with the MAL header:
 SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=1, apid=0, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=20, secondary_header=MALHeader(version=0, sdu_type=0, service_area=0, service=0, operation=0, area_version=0, is_error=0, qos_level=0, session=0, secondary_apid=0, secondary_apid_qualifier=0, transaction_id=0, source_id_flag=0, destination_id_flag=0, priority_flag=0, timestamp_flag=0, network_zone_flag=0, session_name_flag=0, domain_flag=0, authentication_id_flag=0, source_id=0, destination_id=0, segment_counter=0, priority=0, timestamp=None, network_zone='', session_name='', domain='', authentication_id=''), data_field=b'')
 ```
 
-To create a space packet from a byte stream including a PUS header:
+To create a space packet from a byte stream including a PUS header, use
+`pus_tm=True` for a TM header, or `pus_tc=True` for a TC one:
 
 ```python
 >>> byte_stream = SpacePacket(secondary_header=pus_header).as_bytes()
->>> SpacePacket.from_bytes(byte_stream, pus=True)
-SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=1, apid=0, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=3, secondary_header=PUSHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b''), data_field=b'')
+>>> SpacePacket.from_bytes(byte_stream, pus_tm=True)
+SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=1, apid=0, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=6, secondary_header=PUSTMHeader(version=2, spare=0, service_type=1, service_subtype=1, message_type_counter=0, destination_id=0, has_time=False, cuc_time=b''), data_field=b'')
 ```
 
 Or from a byte stream including a MAL header:
