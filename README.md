@@ -158,7 +158,7 @@ in bytes (defaults to `1`, and `0` means the field is absent):
 
 ```python
 >>> PUSTCHeader(service_type=8, service_subtype=1, source_id=0x0102, source_id_length=2).as_bytes()
-b'\x10\x08\x01\x01\x02'
+b' \x08\x01\x01\x02'
 ```
 
 Field values are checked when a packet or a header is packed, not when it is built.

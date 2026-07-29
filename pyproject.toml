@@ -1,6 +1,6 @@
 [project]
 name = "minspp"
-version = "0.0.6"
+version = "0.0.7"
 description = "minimalistic implementation of the Space Packet specification from the CCSDS Space Packet Protocol standard"
 authors = [{ name = "Nuno Carvalho", email = "narcarvalho@gmail.com" }]
 requires-python = ">=3.10"

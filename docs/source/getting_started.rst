@@ -138,6 +138,14 @@ Telecommand packets use a different secondary header layout, implemented by the
    >>> PUSTCHeader()
    PUSTCHeader(version=2, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b'')
 
+The width of the TC source ID is mission defined, use :code:`source_id_length` to
+set it in bytes (defaults to :code:`1`, and :code:`0` means the field is absent):
+
+.. code-block:: python
+
+   >>> PUSTCHeader(service_type=8, service_subtype=1, source_id=0x0102, source_id_length=2).as_bytes()
+   b' \x08\x01\x01\x02'
+
 Field values are checked when a packet or a header is packed, not when it is built.
 An out of range value raises a :code:`ValueError` instead of being silently masked
 or surfacing as a :code:`struct.error`, and the standard reserves service type and
@@ -195,6 +203,27 @@ To create a space packet from a byte stream including a PUS header, use
    >>> data = SpacePacket(secondary_header=pus_header).as_bytes()
    >>> SpacePacket.from_bytes(data, pus_tm=True)
    SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=1, apid=0, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=6, secondary_header=PUSTMHeader(version=2, time_reference_status=0, service_type=1, service_subtype=1, message_type_counter=0, destination_id=0, has_time=False, cuc_time=b''), data_field=b'')
+
+A TC header with a non default source ID width must be decoded with the same
+width, otherwise the data field is misaligned, use :code:`pus_source_id_length`:
+
+.. code-block:: python
+
+   >>> tc_header = PUSTCHeader(service_type=8, service_subtype=1, source_id=0x0102, source_id_length=2)
+   >>> data = SpacePacket(secondary_header=tc_header, data_field=b'\xAB\x2A').as_bytes()
+   >>> SpacePacket.from_bytes(data, pus_tc=True, pus_source_id_length=2).data_field
+   b'\xab*'
+
+The same holds for the other mission defined values, use
+:code:`pus_destination_id_length` for a TM header, :code:`pus_cuc_coarse_length`
+for the coarse and fine time split, and :code:`pus_cuc_epoch` for the epoch:
+
+.. code-block:: python
+
+   >>> tm_header = PUSTMHeader(service_type=3, service_subtype=25, destination_id=42, destination_id_length=1)
+   >>> data = SpacePacket(secondary_header=tm_header, data_field=b'\x01\x02').as_bytes()
+   >>> SpacePacket.from_bytes(data, pus_tm=True, pus_destination_id_length=1).data_field
+   b'\x01\x02'
 
 Or from a byte stream including a MAL header:
 
