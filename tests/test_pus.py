@@ -98,6 +98,19 @@ def test_space_packet_pus_tc_time_bytes():
     assert packet2.data_field == b'\x01\x02'
     assert packet2.as_bytes() == bytes1
 
+def test_space_packet_pus_tc_time_bytes_custom_length():
+    header = PUSTCHeader(has_time=True, cuc_time_length=5)
+    space_packet = SpacePacket(secondary_header=header, data_field=b'\x01\x02')
+
+    bytes1 = space_packet.as_bytes()
+    packet2 = SpacePacket.from_bytes(bytes1, pus_tc=True, pus_has_time=True,
+                                     pus_cuc_time_length=5)
+
+    assert len(packet2.secondary_header.cuc_time) == 5
+    assert packet2.secondary_header == header
+    assert packet2.data_field == b'\x01\x02'
+    assert packet2.as_bytes() == bytes1
+
 def test_new_pus_tm_header():
     tm_header = PUSTMHeader()
 
@@ -217,6 +230,28 @@ def test_space_packet_pus_tm_time_bytes():
     assert packet2.secondary_header == space_packet.secondary_header
     assert packet2.data_field == b'\x01\x02'
     assert packet2.as_bytes() == bytes1
+
+def test_space_packet_pus_tm_time_bytes_custom_length():
+    header = PUSTMHeader(has_time=True, cuc_time_length=5)
+    space_packet = SpacePacket(secondary_header=header, data_field=b'\x01\x02')
+
+    bytes1 = space_packet.as_bytes()
+    packet2 = SpacePacket.from_bytes(bytes1, pus_tm=True, pus_has_time=True,
+                                     pus_cuc_time_length=5)
+
+    assert len(packet2.secondary_header.cuc_time) == 5
+    assert packet2.secondary_header == header
+    assert packet2.data_field == b'\x01\x02'
+    assert packet2.as_bytes() == bytes1
+
+def test_space_packet_pus_tm_no_time_keeps_data_field():
+    header = PUSTMHeader()
+    space_packet = SpacePacket(secondary_header=header, data_field=b'\x01\x02')
+
+    packet2 = SpacePacket.from_bytes(space_packet.as_bytes(), pus_tm=True)
+
+    assert packet2.secondary_header.cuc_time == b''
+    assert packet2.data_field == b'\x01\x02'
 
 def test_space_packet_pus_tc_and_pus_tm_are_exclusive():
     space_packet = SpacePacket(secondary_header=PUSTMHeader(), data_field=b'\x01\x02')
