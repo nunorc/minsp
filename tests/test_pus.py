@@ -4,9 +4,12 @@ from datetime import datetime, timezone
 import pytest
 
 from minspp import PacketType, SpacePacket
-from minspp.pus import (PUS_TC_HEADER_LENGTH, PUS_TC_SOURCE_ID_LENGTH, PUS_TM_HEADER_LENGTH,
-                        PUSTCHeader, PUSTMHeader, tc_header_length)
-from minspp.utils import CUC_TIME_LENGTH, cuc_as_datetime, cuc_time_now
+from minspp.pus import (PUS_TC_HEADER_LENGTH, PUS_TC_SOURCE_ID_LENGTH,
+                        PUS_TM_DESTINATION_ID_LENGTH, PUS_TM_HEADER_LENGTH,
+                        PUSTCHeader, PUSTMHeader, fine_time_length, tc_header_length,
+                        tm_header_length)
+from minspp.utils import (CUC_COARSE_LENGTH, CUC_FINE_LENGTH, CUC_TIME_LENGTH,
+                          cuc_as_datetime, cuc_time_now)
 
 def test_new_pus_tc_header():
     pus_header = PUSTCHeader()
@@ -370,6 +373,206 @@ def test_space_packet_pus_tc_and_pus_tm_are_exclusive():
 
     with pytest.raises(ValueError):
         SpacePacket.from_bytes(space_packet.as_bytes(), pus_tc=True, pus_tm=True)
+
+def test_pus_tm_header_default_destination_id_length():
+    header = PUSTMHeader()
+
+    assert header.destination_id_length == PUS_TM_DESTINATION_ID_LENGTH == 2
+    assert header.header_length() == len(header.as_bytes()) == PUS_TM_HEADER_LENGTH == 7
+    assert tm_header_length() == PUS_TM_HEADER_LENGTH
+
+def test_pus_tm_header_destination_id_8bit_layout():
+    # PUS-C TM (3,25) for a mission with an 8 bit destination ID
+    header = PUSTMHeader(service_type=3, service_subtype=25, message_type_counter=0x0102,
+                         destination_id=0x03, destination_id_length=1)
+    data = header.as_bytes()
+
+    assert header.header_length() == tm_header_length(1) == 6
+    assert len(data) == 6
+    assert data == b'\x20\x03\x19\x01\x02\x03'
+
+    header2 = PUSTMHeader.from_bytes(data, destination_id_length=1)
+
+    assert header2 == header
+    assert header2.destination_id == 0x03
+    assert header2.as_bytes() == data
+
+def test_pus_tm_header_destination_id_lengths():
+    for length in [0, 1, 2, 3, 4]:
+        h1 = PUSTMHeader(destination_id=0, destination_id_length=length)
+        bytes1 = h1.as_bytes()
+
+        assert len(bytes1) == 5 + length
+
+        h2 = PUSTMHeader.from_bytes(bytes1, destination_id_length=length)
+
+        assert h1 == h2
+        assert h2.as_bytes() == bytes1
+
+def test_pus_tm_header_destination_id_length_zero_omits_field():
+    header = PUSTMHeader(service_type=3, service_subtype=25, destination_id=0x0304,
+                         destination_id_length=0)
+
+    assert header.as_bytes() == b'\x20\x03\x19\x00\x00'
+    assert PUSTMHeader.from_bytes(header.as_bytes(),
+                                  destination_id_length=0).destination_id == 0
+
+def test_pus_tm_header_destination_id_32bit_with_time():
+    h1 = PUSTMHeader(destination_id=0xDEADBEEF, destination_id_length=4, has_time=True)
+    bytes1 = h1.as_bytes()
+
+    assert len(bytes1) == tm_header_length(4) + CUC_TIME_LENGTH
+
+    h2 = PUSTMHeader.from_bytes(bytes1, has_time=True, destination_id_length=4)
+
+    assert h1 == h2
+    assert h2.destination_id == 0xDEADBEEF
+    assert h2.cuc_time == h1.cuc_time
+    assert h2.as_bytes() == bytes1
+
+def test_pus_tm_header_destination_id_length_errors():
+    with pytest.raises(ValueError):
+        tm_header_length(-1)
+
+    with pytest.raises(ValueError):
+        PUSTMHeader(destination_id_length=-1).as_bytes()
+
+    with pytest.raises(ValueError):
+        PUSTMHeader.from_bytes(PUSTMHeader().as_bytes(), destination_id_length=-1)
+
+    # a 7 byte stream is one byte short of a 24 bit destination ID header
+    with pytest.raises(ValueError):
+        PUSTMHeader.from_bytes(PUSTMHeader().as_bytes(), destination_id_length=3)
+
+def test_pus_tm_header_destination_id_8bit_keeps_data_field_aligned():
+    header = PUSTMHeader(service_type=3, service_subtype=25, destination_id=0x2A,
+                         destination_id_length=1)
+    space_packet = SpacePacket(apid=11, secondary_header=header, data_field=b'\xAB\x2A')
+
+    assert space_packet.data_length == 6 + 2 - 1
+
+    bytes1 = space_packet.as_bytes()
+    packet2 = SpacePacket.from_bytes(bytes1, pus_tm=True, pus_destination_id_length=1)
+
+    assert packet2.secondary_header == header
+    assert packet2.data_field == b'\xAB\x2A'
+    assert packet2.as_bytes() == bytes1
+
+    # decoding with the default 2 byte destination ID absorbs the first data octet
+    packet3 = SpacePacket.from_bytes(bytes1, pus_tm=True)
+
+    assert packet3.data_field == b'\x2A'
+
+def test_fine_time_length_coarse_split():
+    assert fine_time_length(CUC_TIME_LENGTH) == CUC_FINE_LENGTH == 3
+    assert fine_time_length(CUC_TIME_LENGTH, CUC_COARSE_LENGTH) == CUC_FINE_LENGTH
+    assert fine_time_length(6, 3) == 3
+    assert fine_time_length(4, 4) == 0
+
+def test_fine_time_length_errors():
+    # the fine time can't be negative, i.e. the total must cover the coarse time
+    with pytest.raises(ValueError):
+        fine_time_length(3, 4)
+
+    with pytest.raises(ValueError):
+        fine_time_length(CUC_TIME_LENGTH, 0)
+
+def test_pus_tc_header_cuc_coarse_length():
+    h1 = PUSTCHeader(has_time=True, cuc_time_length=7, cuc_coarse_length=5)
+
+    assert h1.fine_time_length() == 2
+    assert len(h1.cuc_time) == 7
+
+    now = datetime.now(timezone.utc)
+    assert abs((cuc_as_datetime(h1.cuc_time, coarse_length=5) - now).total_seconds()) < 60
+
+    h2 = PUSTCHeader.from_bytes(h1.as_bytes(), has_time=True, cuc_coarse_length=5)
+
+    assert h1 == h2
+    assert h2.cuc_time == h1.cuc_time
+    assert h2.as_bytes() == h1.as_bytes()
+
+def test_pus_tm_header_cuc_coarse_length():
+    h1 = PUSTMHeader(has_time=True, cuc_time_length=7, cuc_coarse_length=5)
+
+    assert h1.fine_time_length() == 2
+    assert len(h1.cuc_time) == 7
+
+    h2 = PUSTMHeader.from_bytes(h1.as_bytes(), has_time=True, cuc_coarse_length=5)
+
+    assert h1 == h2
+    assert h2.as_bytes() == h1.as_bytes()
+
+    # the same octets read with the default 4 byte coarse time are a different instant
+    assert cuc_as_datetime(h1.cuc_time) != cuc_as_datetime(h1.cuc_time, coarse_length=5)
+
+def test_pus_tm_header_cuc_three_coarse_three_fine():
+    # a mission with 3 coarse and 3 fine octets, 1.5 seconds after its epoch
+    cuc_time = b'\x00\x00\x01\x80\x00\x00'
+    h1 = PUSTMHeader(has_time=True, cuc_time=cuc_time, cuc_coarse_length=3)
+
+    assert h1.cuc_time_length == 6
+    assert h1.fine_time_length() == 3
+    assert cuc_as_datetime(h1.cuc_time, coarse_length=3) == \
+        datetime(1970, 1, 1, 0, 0, 1, 500000, tzinfo=timezone.utc)
+
+    h2 = PUSTMHeader.from_bytes(h1.as_bytes(), has_time=True, cuc_time_length=6,
+                                cuc_coarse_length=3)
+
+    assert h1 == h2
+    assert h2.cuc_time == cuc_time
+
+def test_pus_header_cuc_coarse_length_errors():
+    # a 4 byte coarse time does not fit in a 3 byte CUC time
+    with pytest.raises(ValueError):
+        PUSTCHeader(has_time=True, cuc_time_length=3)
+
+    with pytest.raises(ValueError):
+        PUSTMHeader(has_time=True, cuc_time_length=5, cuc_coarse_length=6)
+
+    with pytest.raises(ValueError):
+        PUSTMHeader.from_bytes(PUSTMHeader(has_time=True).as_bytes(), has_time=True,
+                               cuc_coarse_length=8)
+
+def test_space_packet_pus_tm_cuc_coarse_length():
+    header = PUSTMHeader(has_time=True, cuc_time_length=7, cuc_coarse_length=5)
+    space_packet = SpacePacket(secondary_header=header, data_field=b'\x01\x02')
+
+    bytes1 = space_packet.as_bytes()
+    packet2 = SpacePacket.from_bytes(bytes1, pus_tm=True, pus_has_time=True,
+                                     pus_cuc_coarse_length=5)
+
+    assert packet2.secondary_header == header
+    assert packet2.secondary_header.cuc_coarse_length == 5
+    assert packet2.data_field == b'\x01\x02'
+    assert packet2.as_bytes() == bytes1
+
+def test_space_packet_pus_tc_cuc_coarse_length():
+    header = PUSTCHeader(has_time=True, cuc_time_length=6, cuc_coarse_length=5)
+    space_packet = SpacePacket(secondary_header=header, data_field=b'\x01\x02')
+
+    bytes1 = space_packet.as_bytes()
+    packet2 = SpacePacket.from_bytes(bytes1, pus_tc=True, pus_has_time=True,
+                                     pus_cuc_time_length=6, pus_cuc_coarse_length=5)
+
+    assert packet2.secondary_header == header
+    assert packet2.data_field == b'\x01\x02'
+    assert packet2.as_bytes() == bytes1
+
+def test_space_packet_pus_tm_destination_id_iter_packets():
+    first = SpacePacket(apid=1, secondary_header=PUSTMHeader(destination_id=0x0A,
+                                                             destination_id_length=1),
+                        data_field=b'\x01\x02')
+    second = SpacePacket(apid=2, secondary_header=PUSTMHeader(destination_id=0x0B,
+                                                              destination_id_length=1),
+                         data_field=b'\x03\x04\x05')
+
+    packets = list(SpacePacket.iter_packets(first.as_bytes() + second.as_bytes(),
+                                            pus_tm=True, pus_destination_id_length=1))
+
+    assert [p.secondary_header.destination_id for p in packets] == [0x0A, 0x0B]
+    assert packets[0].data_field == b'\x01\x02'
+    assert packets[1].data_field == b'\x03\x04\x05'
 
 def test_space_packet_pus_tc_packet_error_control():
     tc_header = PUSTCHeader(service_type=8, service_subtype=1)

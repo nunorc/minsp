@@ -107,6 +107,24 @@ destination 42:
 b' \x03\x19\x00\x07\x00*'
 ```
 
+The width of the TM destination ID is mission defined, use `destination_id_length`
+to set it in bytes (defaults to `2`, and `0` means the field is absent):
+
+```python
+>>> PUSTMHeader(service_type=3, service_subtype=25, message_type_counter=7, destination_id=42, destination_id_length=1).as_bytes()
+b' \x03\x19\x00\x07*'
+```
+
+The split of the CUC time between the coarse (seconds) and the fine (sub-seconds)
+field is mission defined too, use `cuc_coarse_length` to set the coarse part, the
+remaining octets of `cuc_time_length` hold the fine part:
+
+```python
+>>> header = PUSTMHeader(has_time=True, cuc_time_length=7, cuc_coarse_length=5)
+>>> header.fine_time_length()
+2
+```
+
 Telecommand packets use a different secondary header layout, implemented by the
 `PUSTCHeader` class:
 
@@ -158,6 +176,17 @@ width, otherwise the data field is misaligned, use `pus_source_id_length`:
 >>> byte_stream = SpacePacket(secondary_header=tc_header, data_field=b'\xAB\x2A').as_bytes()
 >>> SpacePacket.from_bytes(byte_stream, pus_tc=True, pus_source_id_length=2).data_field
 b'\xab*'
+```
+
+The same holds for the other mission defined widths, use
+`pus_destination_id_length` for a TM header, and `pus_cuc_coarse_length` for the
+coarse and fine time split:
+
+```python
+>>> tm_header = PUSTMHeader(service_type=3, service_subtype=25, destination_id=42, destination_id_length=1)
+>>> byte_stream = SpacePacket(secondary_header=tm_header, data_field=b'\x01\x02').as_bytes()
+>>> SpacePacket.from_bytes(byte_stream, pus_tm=True, pus_destination_id_length=1).data_field
+b'\x01\x02'
 ```
 
 Or from a byte stream including a MAL header:
