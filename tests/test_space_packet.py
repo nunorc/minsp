@@ -47,6 +47,21 @@ def test_space_packet_byte_stream_sec_hdr():
     assert hdr == new_packet.secondary_header
     assert pld == new_packet.data_field
 
+def test_space_packet_single_octet_data_field():
+    packet = SpacePacket(apid=11, data_field=b'\x01')
+    assert packet.data_length == 0
+
+    byte_stream = packet.as_bytes()
+    assert byte_stream == b'\x00\x0b\xc0\x00\x00\x00\x01'
+
+    new_packet = SpacePacket.from_bytes(byte_stream)
+    assert new_packet.data_length == 0
+    assert new_packet.data_field == b'\x01'
+
+def test_space_packet_empty_data_field():
+    with pytest.raises(ValueError):
+        SpacePacket().as_bytes()
+
 def test_space_packet_from_bytes_bounded_by_data_length():
     packet = SpacePacket(data_field=b'testing')
 

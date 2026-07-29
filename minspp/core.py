@@ -104,6 +104,8 @@ class SpacePacket:
         - Optional secondary header
         - Data field
 
+        :raises ValueError: Empty packet data field, at least one octet is required.
+
         :return: Space packet bytes.
         :rtype: bytes
         """
@@ -120,8 +122,9 @@ class SpacePacket:
 
         payload = sec_hdr + self.data_field
         self.data_length = len(payload) - 1
-        if self.data_length <= 0:
-            raise ValueError("Can't generate packet as bytes, data length is 0 or negative.")
+        # the packet data field holds at least one octet, i.e. a data length of 0
+        if self.data_length < 0:
+            raise ValueError("Can't generate packet as bytes, packet data field is empty.")
 
         first_word = ((self.version & 0x07) << 13) | \
                      ((self.type & 0x01) << 12) | \
