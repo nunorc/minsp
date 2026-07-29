@@ -33,5 +33,19 @@ def test_mal_header_bytes():
 
     bytes1 = MALHeader().as_bytes()
     bytes2 = MALHeader.from_bytes(bytes1).as_bytes()
-    
+
     assert bytes1 == bytes2
+
+def test_mal_header_bytes_with_strings():
+    h1 = MALHeader(network_zone_flag=1, session_name_flag=1,
+                   domain_flag=1, authentication_id_flag=1,
+                   network_zone='zone', session_name='LIVE',
+                   domain='esa.mission.spacecraft', authentication_id='user')
+    h2 = MALHeader.from_bytes(h1.as_bytes())
+
+    assert h1 == h2
+    assert h2.network_zone == 'zone'
+    assert h2.session_name == 'LIVE'
+    assert h2.domain == 'esa.mission.spacecraft'
+    assert h2.authentication_id == 'user'
+

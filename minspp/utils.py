@@ -77,15 +77,53 @@ def cuc_as_datetime(cuc_time: bytes, coarse_length: int = CUC_COARSE_LENGTH) -> 
 
     return epoch + timedelta(seconds=seconds + frac_seconds)
 
+MAL_STRING_LENGTH_SIZE: int = 2
+"""Number of octets of the length prefix of a MAL variable length string field."""
+
 def mal_encode_string(s: str) -> bytes:
-    """Encode a string to pack header."""
+    """
+    Encodes a string as a MAL length prefixed field.
+
+    The result is a `MAL_STRING_LENGTH_SIZE` octet big-endian length followed by
+    the UTF-8 encoded string.
+
+    :param s: The string to encode.
+    :type s: str
+
+    :raises ValueError: Encoded string too long for the length field.
+
+    :return: The length prefixed string bytes.
+    :rtype: bytes
+    """
     encoded = s.encode('utf-8')
 
-    return struct.pack("B", len(encoded)) + encoded
+    if len(encoded) > 0xFFFF:
+        raise ValueError("Encoded string too long for the MAL length field.")
+
+    return struct.pack(">H", len(encoded)) + encoded
 
 def mal_decode_string(data: bytes, offset: int) -> tuple[str, int]:
-    """Decode a string from a packed header."""
-    length = struct.unpack(">H", data[offset:offset+2])[0]
-    value = data[offset + 2:offset + 2 + length].decode('utf-8')
+    """
+    Decodes a MAL length prefixed string field.
 
-    return value, offset + 1 + length
+    :param data: The byte stream.
+    :type data: bytes
+    :param offset: Offset of the length prefix in the byte stream.
+    :type offset: int
+
+    :raises ValueError: Insufficient data for the string field.
+
+    :return: The decoded string and the offset just after the field.
+    :rtype: tuple[str, int]
+    """
+    if len(data) < offset + MAL_STRING_LENGTH_SIZE:
+        raise ValueError("Insufficient data for MAL string length field.")
+
+    length = struct.unpack(">H", data[offset:offset+MAL_STRING_LENGTH_SIZE])[0]
+    start = offset + MAL_STRING_LENGTH_SIZE
+    end = start + length
+
+    if len(data) < end:
+        raise ValueError("Insufficient data for MAL string field.")
+
+    return data[start:end].decode('utf-8'), end
