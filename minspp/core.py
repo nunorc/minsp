@@ -3,13 +3,14 @@ The `minspp.core` module provides the package core functions and classes.
 """
 
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 import struct
 
 from .pus import (PUS_TC_SOURCE_ID_LENGTH, PUS_TM_DESTINATION_ID_LENGTH,
                   PUSTCHeader, PUSTMHeader)
 from .mo import MALHeader
-from .utils import CUC_COARSE_LENGTH, CUC_TIME_LENGTH, crc16_ccitt
+from .utils import CUC_COARSE_LENGTH, CUC_EPOCH, CUC_TIME_LENGTH, crc16_ccitt
 
 PACKET_ERROR_CONTROL_LENGTH: int = 2
 """Number of octets of the packet error control (CRC-16) field."""
@@ -191,7 +192,8 @@ class SpacePacket:
         pus_source_id_length: int = PUS_TC_SOURCE_ID_LENGTH, \
         packet_error_control: bool = False, \
         pus_destination_id_length: int = PUS_TM_DESTINATION_ID_LENGTH, \
-        pus_cuc_coarse_length: int = CUC_COARSE_LENGTH) -> "SpacePacket":
+        pus_cuc_coarse_length: int = CUC_COARSE_LENGTH, \
+        pus_cuc_epoch: datetime = CUC_EPOCH) -> "SpacePacket":
         """
         Unpacks a byte stream into a `SpacePacket` instance.
 
@@ -225,6 +227,9 @@ class SpacePacket:
         :param pus_cuc_coarse_length: Length in bytes of the coarse time part of the
         PUS CUC time, default is `4`. The standard makes this split mission defined.
         :type pus_cuc_coarse_length: int
+        :param pus_cuc_epoch: Epoch the PUS CUC coarse time counts from, default is
+        the Unix epoch. The standard makes the epoch mission defined.
+        :type pus_cuc_epoch: datetime
 
         :raises ValueError: Insufficient data for space packet primary header.
         :raises ValueError: Both `pus_tc` and `pus_tm` are set.
@@ -256,17 +261,20 @@ class SpacePacket:
 
         if header["secondary_header_flag"] == 1:
             if pus_tc:
-                secondary_header = PUSTCHeader.from_bytes(data[6:], has_time=pus_has_time,
-                                                          cuc_time_length=pus_cuc_time_length,
-                                                          source_id_length=pus_source_id_length,
-                                                          cuc_coarse_length=pus_cuc_coarse_length)
+                secondary_header = PUSTCHeader.from_bytes(
+                    data[6:], has_time=pus_has_time,
+                    cuc_time_length=pus_cuc_time_length,
+                    source_id_length=pus_source_id_length,
+                    cuc_coarse_length=pus_cuc_coarse_length,
+                    cuc_epoch=pus_cuc_epoch)
                 data_field = data[6+len(secondary_header.as_bytes()):]
             elif pus_tm:
                 secondary_header = PUSTMHeader.from_bytes(
                     data[6:], has_time=pus_has_time,
                     cuc_time_length=pus_cuc_time_length,
                     destination_id_length=pus_destination_id_length,
-                    cuc_coarse_length=pus_cuc_coarse_length)
+                    cuc_coarse_length=pus_cuc_coarse_length,
+                    cuc_epoch=pus_cuc_epoch)
                 data_field = data[6+len(secondary_header.as_bytes()):]
             elif mal:
                 secondary_header = MALHeader.from_bytes(data[6:])
@@ -301,7 +309,8 @@ class SpacePacket:
         pus_source_id_length: int = PUS_TC_SOURCE_ID_LENGTH, \
         packet_error_control: bool = False, \
         pus_destination_id_length: int = PUS_TM_DESTINATION_ID_LENGTH, \
-        pus_cuc_coarse_length: int = CUC_COARSE_LENGTH):
+        pus_cuc_coarse_length: int = CUC_COARSE_LENGTH, \
+        pus_cuc_epoch: datetime = CUC_EPOCH):
         """
         Unpacks a byte stream of back to back space packets, yielding one
         `SpacePacket` per packet found. Every packet in the stream must share the
@@ -335,6 +344,9 @@ class SpacePacket:
         :param pus_cuc_coarse_length: Length in bytes of the coarse time part of the
         PUS CUC time, default is `4`. The standard makes this split mission defined.
         :type pus_cuc_coarse_length: int
+        :param pus_cuc_epoch: Epoch the PUS CUC coarse time counts from, default is
+        the Unix epoch. The standard makes the epoch mission defined.
+        :type pus_cuc_epoch: datetime
 
         :raises ValueError: Insufficient data for space packet primary header.
         :raises ValueError: Insufficient data for the declared packet data length.
@@ -356,7 +368,8 @@ class SpacePacket:
                                  pus_source_id_length=pus_source_id_length,
                                  packet_error_control=packet_error_control,
                                  pus_destination_id_length=pus_destination_id_length,
-                                 pus_cuc_coarse_length=pus_cuc_coarse_length)
+                                 pus_cuc_coarse_length=pus_cuc_coarse_length,
+                                 pus_cuc_epoch=pus_cuc_epoch)
 
             offset += packet_length
 

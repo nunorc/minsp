@@ -8,8 +8,9 @@ layouts, one class each: `PUSTCHeader` implements the TC layout and
 
 import struct
 from dataclasses import dataclass, field
+from datetime import datetime
 
-from .utils import CUC_COARSE_LENGTH, CUC_TIME_LENGTH, cuc_time_now
+from .utils import CUC_COARSE_LENGTH, CUC_EPOCH, CUC_TIME_LENGTH, cuc_time_now
 
 PUS_TC_SOURCE_ID_LENGTH: int = 1
 """Default length in octets of the TC source ID, the standard makes it mission defined."""
@@ -123,6 +124,9 @@ class PUSTCHeader:
     the CUC timestamp, default is `4`. The standard makes this split mission defined,
     the remaining `cuc_time_length - cuc_coarse_length` bytes hold the fine time.
     :type cuc_coarse_length: int
+    :param cuc_epoch: Epoch the CUC coarse time counts from, default is the Unix
+    epoch. The standard makes the epoch mission defined.
+    :type cuc_epoch: datetime
     """
     version: int = 2
     ack: int = 0
@@ -134,13 +138,15 @@ class PUSTCHeader:
     cuc_time_length: int = field(default=CUC_TIME_LENGTH, repr=False)
     source_id_length: int = field(default=PUS_TC_SOURCE_ID_LENGTH, repr=False)
     cuc_coarse_length: int = field(default=CUC_COARSE_LENGTH, repr=False)
+    cuc_epoch: datetime = field(default=CUC_EPOCH, repr=False)
 
     def __post_init__(self):
         if self.cuc_time:
             self.cuc_time_length = len(self.cuc_time)
         elif self.has_time:
             self.cuc_time = cuc_time_now(coarse_length=self.cuc_coarse_length,
-                                         fine_length=self.fine_time_length())
+                                         fine_length=self.fine_time_length(),
+                                         epoch=self.cuc_epoch)
 
     def header_length(self) -> int:
         """
@@ -187,7 +193,8 @@ class PUSTCHeader:
             return header
 
         cuc_time = self.cuc_time or cuc_time_now(coarse_length=self.cuc_coarse_length,
-                                                 fine_length=self.fine_time_length())
+                                                 fine_length=self.fine_time_length(),
+                                                 epoch=self.cuc_epoch)
 
         return header + cuc_time
 
@@ -195,7 +202,8 @@ class PUSTCHeader:
     def from_bytes(cls, data: bytes, has_time: bool = False,
                    cuc_time_length: int = CUC_TIME_LENGTH,
                    source_id_length: int = PUS_TC_SOURCE_ID_LENGTH,
-                   cuc_coarse_length: int = CUC_COARSE_LENGTH) -> "PUSTCHeader":
+                   cuc_coarse_length: int = CUC_COARSE_LENGTH,
+                   cuc_epoch: datetime = CUC_EPOCH) -> "PUSTCHeader":
         """
         Unpacks a byte stream into a `PUSTCHeader` instance.
 
@@ -210,6 +218,9 @@ class PUSTCHeader:
         :param cuc_coarse_length: Length in bytes of the coarse time part of the CUC
         time, default is `4`.
         :type cuc_coarse_length: int
+        :param cuc_epoch: Epoch the CUC coarse time counts from, default is the Unix
+        epoch.
+        :type cuc_epoch: datetime
 
         :raises ValueError: Invalid source ID length.
         :raises ValueError: Insufficient data for PUS TC header.
@@ -248,7 +259,8 @@ class PUSTCHeader:
             cuc_time=cuc_time,
             cuc_time_length=cuc_time_length,
             source_id_length=source_id_length,
-            cuc_coarse_length=cuc_coarse_length
+            cuc_coarse_length=cuc_coarse_length,
+            cuc_epoch=cuc_epoch
         )
 
 @dataclass
@@ -291,6 +303,9 @@ class PUSTMHeader:
     the CUC timestamp, default is `4`. The standard makes this split mission defined,
     the remaining `cuc_time_length - cuc_coarse_length` bytes hold the fine time.
     :type cuc_coarse_length: int
+    :param cuc_epoch: Epoch the CUC coarse time counts from, default is the Unix
+    epoch. The standard makes the epoch mission defined.
+    :type cuc_epoch: datetime
     """
     version: int = 2
     time_reference_status: int = 0
@@ -303,13 +318,15 @@ class PUSTMHeader:
     cuc_time_length: int = field(default=CUC_TIME_LENGTH, repr=False)
     destination_id_length: int = field(default=PUS_TM_DESTINATION_ID_LENGTH, repr=False)
     cuc_coarse_length: int = field(default=CUC_COARSE_LENGTH, repr=False)
+    cuc_epoch: datetime = field(default=CUC_EPOCH, repr=False)
 
     def __post_init__(self):
         if self.cuc_time:
             self.cuc_time_length = len(self.cuc_time)
         elif self.has_time:
             self.cuc_time = cuc_time_now(coarse_length=self.cuc_coarse_length,
-                                         fine_length=self.fine_time_length())
+                                         fine_length=self.fine_time_length(),
+                                         epoch=self.cuc_epoch)
 
     def header_length(self) -> int:
         """
@@ -358,15 +375,18 @@ class PUSTMHeader:
             return header
 
         cuc_time = self.cuc_time or cuc_time_now(coarse_length=self.cuc_coarse_length,
-                                                 fine_length=self.fine_time_length())
+                                                 fine_length=self.fine_time_length(),
+                                                 epoch=self.cuc_epoch)
 
         return header + cuc_time
 
+    # pylint: disable=R0914
     @classmethod
     def from_bytes(cls, data: bytes, has_time: bool = False,
                    cuc_time_length: int = CUC_TIME_LENGTH,
                    destination_id_length: int = PUS_TM_DESTINATION_ID_LENGTH,
-                   cuc_coarse_length: int = CUC_COARSE_LENGTH) -> "PUSTMHeader":
+                   cuc_coarse_length: int = CUC_COARSE_LENGTH,
+                   cuc_epoch: datetime = CUC_EPOCH) -> "PUSTMHeader":
         """
         Unpacks a byte stream into a `PUSTMHeader` instance.
 
@@ -381,6 +401,9 @@ class PUSTMHeader:
         :param cuc_coarse_length: Length in bytes of the coarse time part of the CUC
         time, default is `4`.
         :type cuc_coarse_length: int
+        :param cuc_epoch: Epoch the CUC coarse time counts from, default is the Unix
+        epoch.
+        :type cuc_epoch: datetime
 
         :raises ValueError: Invalid destination ID length.
         :raises ValueError: Insufficient data for PUS TM header.
@@ -421,5 +444,6 @@ class PUSTMHeader:
             cuc_time=cuc_time,
             cuc_time_length=cuc_time_length,
             destination_id_length=destination_id_length,
-            cuc_coarse_length=cuc_coarse_length
+            cuc_coarse_length=cuc_coarse_length,
+            cuc_epoch=cuc_epoch
         )

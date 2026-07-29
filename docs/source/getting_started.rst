@@ -106,10 +106,28 @@ the remaining octets of :code:`cuc_time_length` hold the fine part:
    >>> header.fine_time_length()
    2
 
-Both widths must be given again when decoding, as
-:code:`pus_destination_id_length` and :code:`pus_cuc_coarse_length` of
-:code:`SpacePacket.from_bytes`, otherwise the data field is misaligned or the
-timestamp is read at the wrong resolution.
+So is the epoch the coarse time counts from, which defaults to the Unix epoch, use
+:code:`cuc_epoch` for a mission that counts from another one (the CCSDS
+agency-standard epoch is 1958-01-01, and mission elapsed time counts from launch):
+
+.. code-block:: python
+
+   >>> from datetime import datetime, timezone
+   >>> from minspp.utils import cuc_as_datetime
+   >>> epoch = datetime(1958, 1, 1, tzinfo=timezone.utc)
+   >>> header = PUSTMHeader(has_time=True, cuc_epoch=epoch)
+   >>> cuc_as_datetime(header.cuc_time, epoch=epoch)   # the current time
+   datetime.datetime(2026, 7, 29, 20, 17, 2, 120716, tzinfo=datetime.timezone.utc)
+
+These values must be given again when decoding, as
+:code:`pus_destination_id_length`, :code:`pus_cuc_coarse_length` and
+:code:`pus_cuc_epoch` of :code:`SpacePacket.from_bytes`, otherwise the data field
+is misaligned or the timestamp is read at the wrong resolution or epoch.
+
+The CUC field carries none of them, they are declared out-of-band, and there is no
+P-field (preamble) support. All the arithmetic is done on UTC datetimes: a mission
+whose CUC counts a continuous time scale (TAI, GPS) is off by the leap seconds
+accumulated since its epoch, this package does not convert time scales.
 
 Telecommand packets use a different secondary header layout, implemented by the
 :code:`PUSTCHeader` class:

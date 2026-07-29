@@ -1,11 +1,11 @@
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from minspp.utils import (CRC16_SEED, CUC_COARSE_LENGTH, CUC_FINE_LENGTH, CUC_TIME_LENGTH,
-                          MAL_STRING_LENGTH_SIZE, crc16_ccitt, cuc_as_datetime, cuc_time_now,
-                          mal_decode_string, mal_encode_string)
+from minspp.utils import (CRC16_SEED, CUC_COARSE_LENGTH, CUC_EPOCH, CUC_FINE_LENGTH,
+                          CUC_TIME_LENGTH, MAL_STRING_LENGTH_SIZE, crc16_ccitt,
+                          cuc_as_datetime, cuc_time_now, mal_decode_string, mal_encode_string)
 
 def test_cuc_time_now_default_length():
     assert CUC_TIME_LENGTH == CUC_COARSE_LENGTH + CUC_FINE_LENGTH
@@ -39,6 +39,73 @@ def test_cuc_time_now_invalid_length():
 def test_cuc_as_datetime_insufficient_data():
     with pytest.raises(ValueError):
         cuc_as_datetime(b'\x00\x00')
+
+def test_cuc_epoch_default_is_the_unix_epoch():
+    assert CUC_EPOCH == datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+def test_cuc_as_datetime_custom_epoch():
+    # the CCSDS agency-standard epoch, 1958-01-01
+    epoch = datetime(1958, 1, 1, tzinfo=timezone.utc)
+    cuc_time = b'\x00\x00\x00\x01\x80\x00\x00'
+
+    assert cuc_as_datetime(cuc_time, epoch=epoch) == \
+        datetime(1958, 1, 1, 0, 0, 1, 500000, tzinfo=timezone.utc)
+
+    # the same octets against the default epoch are a different instant
+    assert cuc_as_datetime(cuc_time) != cuc_as_datetime(cuc_time, epoch=epoch)
+
+def test_cuc_time_now_custom_epoch_round_trip():
+    epoch = datetime(2000, 1, 1, tzinfo=timezone.utc)
+
+    now = datetime.now(timezone.utc)
+    value = cuc_as_datetime(cuc_time_now(epoch=epoch), epoch=epoch)
+
+    assert abs((value - now).total_seconds()) < 2
+
+def test_cuc_time_now_custom_epoch_counts_from_it():
+    epoch = datetime(2000, 1, 1, tzinfo=timezone.utc)
+    offset = (epoch - CUC_EPOCH).total_seconds()
+
+    seconds = int.from_bytes(cuc_time_now(epoch=epoch)[:CUC_COARSE_LENGTH], byteorder='big')
+    default = int.from_bytes(cuc_time_now()[:CUC_COARSE_LENGTH], byteorder='big')
+
+    # a later epoch yields a smaller count, by exactly the distance between epochs
+    assert abs((default - seconds) - offset) < 2
+
+def test_cuc_time_now_mission_elapsed_time():
+    # a mission elapsed time epoch, i.e. a count from launch
+    epoch = datetime.now(timezone.utc) - timedelta(days=1)
+    seconds = int.from_bytes(cuc_time_now(epoch=epoch)[:CUC_COARSE_LENGTH], byteorder='big')
+
+    assert abs(seconds - 86400) < 2
+
+def test_cuc_time_now_rounds_the_fine_time():
+    # an epoch 999 milliseconds past a whole second, so a coarse only time rounds up
+    epoch = datetime.now(timezone.utc) - timedelta(seconds=10, milliseconds=999)
+
+    cuc_time = cuc_time_now(fine_length=0, epoch=epoch)
+
+    assert len(cuc_time) == CUC_COARSE_LENGTH
+    # truncating the sub-second part instead of rounding it would give 10
+    assert int.from_bytes(cuc_time, byteorder='big') == 11
+
+def test_cuc_time_now_fine_time_carries_into_the_coarse_time():
+    # a fine time that rounds up to a whole second must not overflow its field
+    epoch = datetime.now(timezone.utc) - timedelta(seconds=10, microseconds=999999)
+
+    cuc_time = cuc_time_now(fine_length=1, epoch=epoch)
+
+    assert len(cuc_time) == CUC_COARSE_LENGTH + 1
+    assert int.from_bytes(cuc_time[:CUC_COARSE_LENGTH], byteorder='big') == 11
+    assert cuc_time[CUC_COARSE_LENGTH] <= 1
+
+def test_cuc_time_now_fine_time_resolution():
+    # every fine time length keeps the round trip within one unit of its resolution
+    for fine_length in range(1, 5):
+        now = datetime.now(timezone.utc)
+        value = cuc_as_datetime(cuc_time_now(fine_length=fine_length))
+
+        assert abs((value - now).total_seconds()) < 1 + 1 / (1 << (8 * fine_length))
 
 def test_mal_string_round_trip():
     for value in ['', 'a', 'space packet', 'ãéï non ascii', 'x' * 300]:

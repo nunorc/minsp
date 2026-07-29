@@ -125,6 +125,25 @@ remaining octets of `cuc_time_length` hold the fine part:
 2
 ```
 
+So is the epoch the coarse time counts from, which defaults to the Unix epoch, use
+`cuc_epoch` for a mission that counts from another one (the CCSDS agency-standard
+epoch is 1958-01-01, and mission elapsed time counts from launch):
+
+```python
+>>> from datetime import datetime, timezone
+>>> from minspp.utils import cuc_as_datetime
+>>> epoch = datetime(1958, 1, 1, tzinfo=timezone.utc)
+>>> header = PUSTMHeader(has_time=True, cuc_epoch=epoch)
+>>> cuc_as_datetime(header.cuc_time, epoch=epoch)   # the current time
+datetime.datetime(2026, 7, 29, 20, 17, 2, 120716, tzinfo=datetime.timezone.utc)
+```
+
+The CUC field carries neither the epoch nor the coarse and fine lengths, they are
+declared out-of-band, so decoding must use the same values the sender used. There
+is no P-field (preamble) support, and all the arithmetic is done on UTC datetimes:
+a mission whose CUC counts a continuous time scale (TAI, GPS) is off by the leap
+seconds accumulated since its epoch, this package does not convert time scales.
+
 Telecommand packets use a different secondary header layout, implemented by the
 `PUSTCHeader` class:
 
@@ -178,9 +197,9 @@ width, otherwise the data field is misaligned, use `pus_source_id_length`:
 b'\xab*'
 ```
 
-The same holds for the other mission defined widths, use
-`pus_destination_id_length` for a TM header, and `pus_cuc_coarse_length` for the
-coarse and fine time split:
+The same holds for the other mission defined values, use
+`pus_destination_id_length` for a TM header, `pus_cuc_coarse_length` for the coarse
+and fine time split, and `pus_cuc_epoch` for the epoch:
 
 ```python
 >>> tm_header = PUSTMHeader(service_type=3, service_subtype=25, destination_id=42, destination_id_length=1)

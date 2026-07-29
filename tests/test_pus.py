@@ -1,5 +1,5 @@
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -8,7 +8,7 @@ from minspp.pus import (PUS_TC_HEADER_LENGTH, PUS_TC_SOURCE_ID_LENGTH,
                         PUS_TM_DESTINATION_ID_LENGTH, PUS_TM_HEADER_LENGTH,
                         PUSTCHeader, PUSTMHeader, fine_time_length, tc_header_length,
                         tm_header_length)
-from minspp.utils import (CUC_COARSE_LENGTH, CUC_FINE_LENGTH, CUC_TIME_LENGTH,
+from minspp.utils import (CUC_COARSE_LENGTH, CUC_EPOCH, CUC_FINE_LENGTH, CUC_TIME_LENGTH,
                           cuc_as_datetime, cuc_time_now)
 
 def test_new_pus_tc_header():
@@ -558,6 +558,75 @@ def test_space_packet_pus_tc_cuc_coarse_length():
     assert packet2.secondary_header == header
     assert packet2.data_field == b'\x01\x02'
     assert packet2.as_bytes() == bytes1
+
+def test_pus_header_default_cuc_epoch():
+    assert PUSTCHeader().cuc_epoch == PUSTMHeader().cuc_epoch == CUC_EPOCH
+
+def test_pus_tc_header_cuc_epoch():
+    # the CCSDS agency-standard epoch, 1958-01-01
+    epoch = datetime(1958, 1, 1, tzinfo=timezone.utc)
+    h1 = PUSTCHeader(has_time=True, cuc_epoch=epoch)
+
+    now = datetime.now(timezone.utc)
+    assert abs((cuc_as_datetime(h1.cuc_time, epoch=epoch) - now).total_seconds()) < 60
+
+    # an earlier epoch means a larger count, so the same octets read against the
+    # default epoch land twelve years in the future
+    assert cuc_as_datetime(h1.cuc_time) > now + timedelta(days=365 * 11)
+
+    h2 = PUSTCHeader.from_bytes(h1.as_bytes(), has_time=True, cuc_epoch=epoch)
+
+    assert h1 == h2
+    assert h2.cuc_epoch == epoch
+    assert h2.as_bytes() == h1.as_bytes()
+
+def test_pus_tm_header_cuc_epoch_mission_elapsed_time():
+    # a mission elapsed time epoch, i.e. a count from launch
+    epoch = datetime.now(timezone.utc) - timedelta(days=1)
+    header = PUSTMHeader(has_time=True, cuc_epoch=epoch)
+
+    seconds = int.from_bytes(header.cuc_time[:CUC_COARSE_LENGTH], byteorder='big')
+
+    assert abs(seconds - 86400) < 60
+
+def test_pus_header_cuc_epoch_differs_from_default():
+    epoch = datetime(2000, 1, 1, tzinfo=timezone.utc)
+
+    assert PUSTMHeader(has_time=True, cuc_epoch=epoch) != PUSTMHeader(has_time=True)
+
+def test_space_packet_pus_tm_cuc_epoch():
+    epoch = datetime(1958, 1, 1, tzinfo=timezone.utc)
+    header = PUSTMHeader(has_time=True, cuc_epoch=epoch)
+    space_packet = SpacePacket(secondary_header=header, data_field=b'\x01\x02')
+
+    bytes1 = space_packet.as_bytes()
+    packet2 = SpacePacket.from_bytes(bytes1, pus_tm=True, pus_has_time=True,
+                                     pus_cuc_epoch=epoch)
+
+    assert packet2.secondary_header == header
+    assert packet2.secondary_header.cuc_epoch == epoch
+    assert packet2.data_field == b'\x01\x02'
+    assert packet2.as_bytes() == bytes1
+
+def test_space_packet_pus_tc_cuc_epoch_and_coarse_length():
+    # a mission with its own epoch and a 5 byte coarse time
+    epoch = datetime(2000, 1, 1, tzinfo=timezone.utc)
+    header = PUSTCHeader(has_time=True, cuc_time_length=7, cuc_coarse_length=5,
+                         cuc_epoch=epoch)
+    space_packet = SpacePacket(secondary_header=header, data_field=b'\x01\x02')
+
+    bytes1 = space_packet.as_bytes()
+    packet2 = SpacePacket.from_bytes(bytes1, pus_tc=True, pus_has_time=True,
+                                     pus_cuc_coarse_length=5, pus_cuc_epoch=epoch)
+
+    assert packet2.secondary_header == header
+    assert packet2.data_field == b'\x01\x02'
+    assert packet2.as_bytes() == bytes1
+
+    now = datetime.now(timezone.utc)
+    value = cuc_as_datetime(packet2.secondary_header.cuc_time, coarse_length=5, epoch=epoch)
+
+    assert abs((value - now).total_seconds()) < 60
 
 def test_space_packet_pus_tm_destination_id_iter_packets():
     first = SpacePacket(apid=1, secondary_header=PUSTMHeader(destination_id=0x0A,
