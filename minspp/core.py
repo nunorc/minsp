@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 import struct
 
-from .pus import PUSTCHeader, PUSTMHeader
+from .pus import PUS_TC_SOURCE_ID_LENGTH, PUSTCHeader, PUSTMHeader
 from .mo import MALHeader
 from .utils import CUC_TIME_LENGTH
 
@@ -137,7 +137,8 @@ class SpacePacket:
     @classmethod
     def from_bytes(cls, data: bytes, secondary_header_length: int = 0, \
         pus_tc: bool = False, mal: bool = False, pus_has_time: bool = False, \
-        pus_cuc_time_length: int = CUC_TIME_LENGTH, pus_tm: bool = False) -> "SpacePacket":
+        pus_cuc_time_length: int = CUC_TIME_LENGTH, pus_tm: bool = False, \
+        pus_source_id_length: int = PUS_TC_SOURCE_ID_LENGTH) -> "SpacePacket":
         """
         Unpacks a byte stream into a `SpacePacket` instance.
 
@@ -155,6 +156,9 @@ class SpacePacket:
         :type pus_cuc_time_length: int
         :param pus_tm: Secondary header is a `PUSTMHeader`.
         :type pus_tm: bool
+        :param pus_source_id_length: Length in bytes of the source ID of a PUS TC
+        secondary header, default is `1`. The standard makes this width mission defined.
+        :type pus_source_id_length: int
 
         :raises ValueError: Insufficient data for space packet primary header.
         :raises ValueError: Both `pus_tc` and `pus_tm` are set.
@@ -174,7 +178,8 @@ class SpacePacket:
         if header["secondary_header_flag"] == 1:
             if pus_tc:
                 secondary_header = PUSTCHeader.from_bytes(data[6:], has_time=pus_has_time,
-                                                          cuc_time_length=pus_cuc_time_length)
+                                                          cuc_time_length=pus_cuc_time_length,
+                                                          source_id_length=pus_source_id_length)
                 data_field = data[6+len(secondary_header.as_bytes()):]
             elif pus_tm:
                 secondary_header = PUSTMHeader.from_bytes(data[6:], has_time=pus_has_time,

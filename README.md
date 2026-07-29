@@ -91,6 +91,14 @@ Telecommand packets use a different secondary header layout, implemented by the
 PUSTCHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b'')
 ```
 
+The width of the TC source ID is mission defined, use `source_id_length` to set it
+in bytes (defaults to `1`, and `0` means the field is absent):
+
+```python
+>>> PUSTCHeader(service_type=8, service_subtype=1, source_id=0x0102, source_id_length=2).as_bytes()
+b'\x10\x08\x01\x01\x02'
+```
+
 Similar approach for a MAL secondary header:
 
 ```python
@@ -115,6 +123,16 @@ To create a space packet from a byte stream including a PUS header, use
 >>> byte_stream = SpacePacket(secondary_header=pus_header).as_bytes()
 >>> SpacePacket.from_bytes(byte_stream, pus_tm=True)
 SpacePacket(version=0, type=<PacketType.TM: 0>, secondary_header_flag=1, apid=0, sequence_flags=<SequenceFlags.UNSEGMENTED: 3>, sequence_count=0, data_length=6, secondary_header=PUSTMHeader(version=2, spare=0, service_type=1, service_subtype=1, message_type_counter=0, destination_id=0, has_time=False, cuc_time=b''), data_field=b'')
+```
+
+A TC header with a non default source ID width must be decoded with the same
+width, otherwise the data field is misaligned, use `pus_source_id_length`:
+
+```python
+>>> tc_header = PUSTCHeader(service_type=8, service_subtype=1, source_id=0x0102, source_id_length=2)
+>>> byte_stream = SpacePacket(secondary_header=tc_header, data_field=b'\xAB\x2A').as_bytes()
+>>> SpacePacket.from_bytes(byte_stream, pus_tc=True, pus_source_id_length=2).data_field
+b'\xab*'
 ```
 
 Or from a byte stream including a MAL header:
