@@ -1,5 +1,5 @@
 """
-The `minsp.utils` module provides different auxiliary functions.
+The `minspp.utils` module provides different auxiliary functions.
 """
 
 import struct

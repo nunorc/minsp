@@ -1,5 +1,5 @@
 """
-The `minsp.pus` module provides PUS header related classes.
+The `minspp.pus` module provides PUS header related classes.
 """
 
 import struct

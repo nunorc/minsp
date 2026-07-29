@@ -1,5 +1,5 @@
 
-from minsp.mo import MALHeader
+from minspp.mo import MALHeader
 
 def test_new_mal_header():
     header = MALHeader()

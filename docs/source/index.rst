@@ -1,10 +1,12 @@
 
-minsp
+minspp
 =====================================
 
 Minimalistic implementation of the Space Packet specification from the CCSDS Space Packet Protocol standard.
 
-`Repository <https://github.com/nunorc/minsp>`_ | `Documentation <https://nunorc.github.io/minsp>`_
+`Repository <https://github.com/nunorc/minspp>`_ | `Documentation <https://nunorc.github.io/minspp>`_
+
+This package was formerly published as ``minsp``, which is no longer updated.
 
 .. include:: installation.rst
 

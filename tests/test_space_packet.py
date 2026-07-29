@@ -1,5 +1,5 @@
 
-from minsp import SpacePacket, PacketType, SequenceFlags
+from minspp import SpacePacket, PacketType, SequenceFlags
 
 def test_new_space_packet():
     packet = SpacePacket()

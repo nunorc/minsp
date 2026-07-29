@@ -1,6 +1,6 @@
 
-from minsp import SpacePacket
-from minsp.pus import PUSHeader
+from minspp import SpacePacket
+from minspp.pus import PUSHeader
 
 def test_new_pus_header():
     pus_header = PUSHeader()

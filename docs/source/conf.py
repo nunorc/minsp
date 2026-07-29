@@ -3,7 +3,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
-project = 'minsp'
+project = 'minspp'
 copyright = '2024-2025, Nuno Carvalho'
 author = 'Nuno Carvalho'
 

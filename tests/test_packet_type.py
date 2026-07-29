@@ -1,5 +1,5 @@
 
-from minsp import PacketType
+from minspp import PacketType
 
 def test_new_packet_type():
     tm = PacketType.TM

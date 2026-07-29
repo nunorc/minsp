@@ -6,7 +6,7 @@ Import the :code:`SpacePacket` class from the package:
 
 .. code-block:: python
 
-   >>> from minsp import SpacePacket
+   >>> from minspp import SpacePacket
 
 For example, to create a new space packet for APID 11 and an arbitrary data field:
 
@@ -38,7 +38,7 @@ Secondary header can have a custom data definition, or to use PUS:
 
 .. code-block:: python
 
-   >>> from minsp.pus import PUSHeader
+   >>> from minspp.pus import PUSHeader
    >>> pus_header = PUSHeader()
    >>> pus_header
    PUSHeader(version=1, ack=0, service_type=1, service_subtype=1, source_id=0, has_time=False, cuc_time=b'')
@@ -55,7 +55,7 @@ Similar approach for a MAL secondary header:
 
 .. code-block:: python
 
-   >>> from minsp.mo import MALHeader
+   >>> from minspp.mo import MALHeader
    >>> mal_header = MALHeader()
    >>> mal_header
    MALHeader(version=0, sdu_type=0, service_area=0, service=0, operation=0, area_version=0, is_error=0, qos_level=0, session=0, secondary_apid=0, secondary_apid_qualifier=0, transaction_id=0, source_id_flag=0, destination_id_flag=0, priority_flag=0, timestamp_flag=0, network_zone_flag=0, session_name_flag=0, domain_flag=0, authentication_id_flag=0, source_id=0, destination_id=0, segment_counter=0, priority=0, timestamp=None, network_zone='', session_name='', domain='', authentication_id='')
@@ -89,7 +89,7 @@ of fragmented packets, for example consider the following packets:
 
 .. code-block:: python
 
-   >>> from minsp import SpacePacket, SequenceFlag
+   >>> from minspp import SpacePacket, SequenceFlag
    >>> sp1 = SpacePacket(sequence_flags=SequenceFlag.FIRST, data_field=b"123")
    >>> sp2 = SpacePacket(sequence_flags=SequenceFlag.CONTINUATION, data_field=b"456")
    >>> sp3 = SpacePacket(sequence_flags=SequenceFlag.LAST, data_field=b"789")
@@ -98,7 +98,7 @@ To recover the fragmented payload by processing the individual packets:
 
 .. code-block:: python
 
-   >>> from minsp import SpacePacketAssembler
+   >>> from minspp import SpacePacketAssembler
    >>> spa = SpacePacketAssembler()
    >>> spa.process_packet(sp1)
    >>> spa.process_packet(sp2)

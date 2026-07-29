@@ -1,5 +1,5 @@
 """
-The `minsp.core` module provides the package core functions and classes.
+The `minspp.core` module provides the package core functions and classes.
 """
 
 from dataclasses import dataclass

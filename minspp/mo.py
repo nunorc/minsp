@@ -1,5 +1,5 @@
 """
-The `minsp.mo` module provides MAL header related classes.
+The `minspp.mo` module provides MAL header related classes.
 """
 
 from dataclasses import dataclass
