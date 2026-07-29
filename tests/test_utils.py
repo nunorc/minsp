@@ -3,8 +3,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from minspp.utils import (CUC_COARSE_LENGTH, CUC_FINE_LENGTH, CUC_TIME_LENGTH,
-                          MAL_STRING_LENGTH_SIZE, cuc_as_datetime, cuc_time_now,
+from minspp.utils import (CRC16_SEED, CUC_COARSE_LENGTH, CUC_FINE_LENGTH, CUC_TIME_LENGTH,
+                          MAL_STRING_LENGTH_SIZE, crc16_ccitt, cuc_as_datetime, cuc_time_now,
                           mal_decode_string, mal_encode_string)
 
 def test_cuc_time_now_default_length():
@@ -71,3 +71,24 @@ def test_mal_decode_string_insufficient_data():
 
     with pytest.raises(ValueError):
         mal_decode_string(b'\x00\x04ab', 0)
+
+def test_crc16_ccitt_check_value():
+    # the CRC-16/CCITT-FALSE check value for the ASCII string "123456789"
+    assert crc16_ccitt(b'123456789') == 0x29B1
+
+def test_crc16_ccitt_empty_data():
+    assert crc16_ccitt(b'') == CRC16_SEED
+
+def test_crc16_ccitt_over_own_crc_is_zero():
+    data = b'\x00\x0b\xc0\x00\x00\x06hello'
+    crc = crc16_ccitt(data)
+
+    # appending the CRC to the data makes the CRC of the whole stream zero
+    assert crc16_ccitt(data + crc.to_bytes(2, byteorder='big')) == 0
+
+def test_crc16_ccitt_detects_a_flipped_bit():
+    data = bytearray(b'\x00\x0b\xc0\x00\x00\x06hello')
+    crc = crc16_ccitt(data)
+
+    data[-1] ^= 0x01
+    assert crc16_ccitt(data) != crc

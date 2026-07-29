@@ -8,7 +8,10 @@ import struct
 
 from .pus import PUS_TC_SOURCE_ID_LENGTH, PUSTCHeader, PUSTMHeader
 from .mo import MALHeader
-from .utils import CUC_TIME_LENGTH
+from .utils import CUC_TIME_LENGTH, crc16_ccitt
+
+PACKET_ERROR_CONTROL_LENGTH: int = 2
+"""Number of octets of the packet error control (CRC-16) field."""
 
 class PacketType(int, Enum):
     """
@@ -97,12 +100,23 @@ class SpacePacket:
         if self.secondary_header:
             self.secondary_header_flag = 1
 
-    def as_bytes(self) -> bytes:
+    def as_bytes(self, packet_error_control: bool = False) -> bytes:
         """
         Packs the space packet into a byte stream, including:
         - Primary header (6 bytes)
         - Optional secondary header
         - Data field
+        - Optional packet error control (2 bytes)
+
+        The packet error control field is the CRC-16-CCITT of every preceding octet
+        of the packet, and is itself part of the packet data field, so the data
+        length written to the primary header accounts for it. The `data_length`
+        attribute does not, it always describes the secondary header plus the data
+        field.
+
+        :param packet_error_control: Append a packet error control field,
+        default is `False`.
+        :type packet_error_control: bool
 
         :raises ValueError: Empty packet data field, at least one octet is required.
 
@@ -122,8 +136,13 @@ class SpacePacket:
 
         payload = sec_hdr + self.data_field
         self.data_length = len(payload) - 1
+
+        data_length = self.data_length
+        if packet_error_control:
+            data_length += PACKET_ERROR_CONTROL_LENGTH
+
         # the packet data field holds at least one octet, i.e. a data length of 0
-        if self.data_length < 0:
+        if data_length < 0:
             raise ValueError("Can't generate packet as bytes, packet data field is empty.")
 
         first_word = ((self.version & 0x07) << 13) | \
@@ -132,18 +151,49 @@ class SpacePacket:
                      (self.apid & 0x07FF)
         second_word = ((self.sequence_flags & 0x03) << 14) | (self.sequence_count & 0x3FFF)
 
-        header = struct.pack(">HHH", first_word, second_word, self.data_length)
+        header = struct.pack(">HHH", first_word, second_word, data_length)
+        packet = header + payload
 
-        return header + payload
+        if packet_error_control:
+            packet += struct.pack(">H", crc16_ccitt(packet))
+
+        return packet
+
+    @staticmethod
+    def _strip_packet_error_control(data: bytes) -> bytes:
+        """
+        Verifies the packet error control field of a packet and strips it.
+
+        :param data: The bytes of a single packet, error control field included.
+        :type data: bytes
+
+        :raises ValueError: Insufficient data for the packet error control field.
+        :raises ValueError: Packet error control mismatch.
+
+        :return: The packet bytes without the packet error control field.
+        :rtype: bytes
+        """
+        if len(data) < 6 + PACKET_ERROR_CONTROL_LENGTH:
+            raise ValueError("Insufficient data for the packet error control field.")
+
+        crc = struct.unpack(">H", data[-PACKET_ERROR_CONTROL_LENGTH:])[0]
+        if crc != crc16_ccitt(data[:-PACKET_ERROR_CONTROL_LENGTH]):
+            raise ValueError("Packet error control mismatch.")
+
+        return data[:-PACKET_ERROR_CONTROL_LENGTH]
 
     # pylint: disable=R1720
     @classmethod
     def from_bytes(cls, data: bytes, secondary_header_length: int = 0, \
         pus_tc: bool = False, mal: bool = False, pus_has_time: bool = False, \
         pus_cuc_time_length: int = CUC_TIME_LENGTH, pus_tm: bool = False, \
-        pus_source_id_length: int = PUS_TC_SOURCE_ID_LENGTH) -> "SpacePacket":
+        pus_source_id_length: int = PUS_TC_SOURCE_ID_LENGTH, \
+        packet_error_control: bool = False) -> "SpacePacket":
         """
         Unpacks a byte stream into a `SpacePacket` instance.
+
+        Only the octets declared by the packet data length field are consumed, any
+        trailing octets in the byte stream are ignored.
 
         :param data: The byte stream.
         :type data: bytes
@@ -162,10 +212,15 @@ class SpacePacket:
         :param pus_source_id_length: Length in bytes of the source ID of a PUS TC
         secondary header, default is `1`. The standard makes this width mission defined.
         :type pus_source_id_length: int
+        :param packet_error_control: The packet data field ends with a packet error
+        control field, which is verified and stripped, default is `False`.
+        :type packet_error_control: bool
 
         :raises ValueError: Insufficient data for space packet primary header.
         :raises ValueError: Both `pus_tc` and `pus_tm` are set.
         :raises ValueError: Insufficient data for the declared packet data length.
+        :raises ValueError: Insufficient data for the packet error control field.
+        :raises ValueError: Packet error control mismatch.
         :raises ValueError: Secondary header flag bit is set to 1, but secondary header length is 0.
 
         :return: A new `SpacePacket`.
@@ -185,6 +240,9 @@ class SpacePacket:
         if len(data) < packet_length:
             raise ValueError("Insufficient data for the declared packet data length.")
         data = data[:packet_length]
+
+        if packet_error_control:
+            data = cls._strip_packet_error_control(data)
 
         if header["secondary_header_flag"] == 1:
             if pus_tc:
@@ -226,7 +284,8 @@ class SpacePacket:
     def iter_packets(cls, data: bytes, secondary_header_length: int = 0, \
         pus_tc: bool = False, mal: bool = False, pus_has_time: bool = False, \
         pus_cuc_time_length: int = CUC_TIME_LENGTH, pus_tm: bool = False, \
-        pus_source_id_length: int = PUS_TC_SOURCE_ID_LENGTH):
+        pus_source_id_length: int = PUS_TC_SOURCE_ID_LENGTH, \
+        packet_error_control: bool = False):
         """
         Unpacks a byte stream of back to back space packets, yielding one
         `SpacePacket` per packet found. Every packet in the stream must share the
@@ -250,9 +309,13 @@ class SpacePacket:
         :param pus_source_id_length: Length in bytes of the source ID of a PUS TC
         secondary header, default is `1`. The standard makes this width mission defined.
         :type pus_source_id_length: int
+        :param packet_error_control: The packet data field ends with a packet error
+        control field, which is verified and stripped, default is `False`.
+        :type packet_error_control: bool
 
         :raises ValueError: Insufficient data for space packet primary header.
         :raises ValueError: Insufficient data for the declared packet data length.
+        :raises ValueError: Packet error control mismatch.
 
         :return: A generator of `SpacePacket`.
         :rtype: Iterator[SpacePacket]
@@ -267,7 +330,8 @@ class SpacePacket:
                                  secondary_header_length=secondary_header_length,
                                  pus_tc=pus_tc, mal=mal, pus_has_time=pus_has_time,
                                  pus_cuc_time_length=pus_cuc_time_length, pus_tm=pus_tm,
-                                 pus_source_id_length=pus_source_id_length)
+                                 pus_source_id_length=pus_source_id_length,
+                                 packet_error_control=packet_error_control)
 
             offset += packet_length
 

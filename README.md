@@ -65,6 +65,21 @@ the packet are ignored. To walk a buffer holding several back to back packets us
 [(11, b'hello'), (12, b'world')]
 ```
 
+The packet data field can end with a packet error control field, the CRC-16-CCITT
+of every preceding octet of the packet, which most missions mandate for
+telecommands. It is opt-in on both sides, and the data length written to the
+primary header accounts for the two extra octets:
+
+```python
+>>> byte_stream = space_packet.as_bytes(packet_error_control=True)
+>>> byte_stream
+b'\x00\x0b\xc0\x00\x00\x06hello\x81c'
+>>> SpacePacket.from_bytes(byte_stream, packet_error_control=True).data_field
+b'hello'
+```
+
+Decoding verifies the field and strips it, a mismatch raises a `ValueError`.
+
 Secondary header can have a custom data definition, or to use PUS. Telemetry
 packets use the PUS-C (ECSS-E-ST-70-41C) TM secondary header:
 

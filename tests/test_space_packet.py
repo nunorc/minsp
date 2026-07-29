@@ -2,6 +2,8 @@
 import pytest
 
 from minspp import SpacePacket, PacketType, SequenceFlags
+from minspp.core import PACKET_ERROR_CONTROL_LENGTH
+from minspp.utils import crc16_ccitt
 
 def test_new_space_packet():
     packet = SpacePacket()
@@ -104,3 +106,59 @@ def test_space_packet_iter_packets_truncated():
 
     with pytest.raises(ValueError):
         list(SpacePacket.iter_packets(byte_stream + byte_stream[:-1]))
+
+def test_space_packet_error_control_bytes():
+    packet = SpacePacket(apid=11, data_field=b'hello')
+
+    plain = packet.as_bytes()
+    byte_stream = packet.as_bytes(packet_error_control=True)
+
+    assert len(byte_stream) == len(plain) + PACKET_ERROR_CONTROL_LENGTH
+    assert byte_stream[:6] != plain[:6]   # the data length accounts for the CRC
+    assert byte_stream[6:-PACKET_ERROR_CONTROL_LENGTH] == plain[6:]
+    assert byte_stream[4:6] == (packet.data_length + PACKET_ERROR_CONTROL_LENGTH).to_bytes(2, 'big')
+    assert byte_stream[-PACKET_ERROR_CONTROL_LENGTH:] == \
+        crc16_ccitt(byte_stream[:-PACKET_ERROR_CONTROL_LENGTH]).to_bytes(2, 'big')
+
+def test_space_packet_error_control_round_trip():
+    packet = SpacePacket(apid=11, data_field=b'hello')
+    byte_stream = packet.as_bytes(packet_error_control=True)
+
+    new_packet = SpacePacket.from_bytes(byte_stream, packet_error_control=True)
+
+    assert new_packet.data_field == b'hello'
+    assert new_packet.data_length == packet.data_length
+    assert new_packet.as_bytes(packet_error_control=True) == byte_stream
+
+def test_space_packet_error_control_sec_hdr_round_trip():
+    hdr = b'1212121212'
+    packet = SpacePacket(secondary_header=hdr, data_field=b'hello')
+    byte_stream = packet.as_bytes(packet_error_control=True)
+
+    new_packet = SpacePacket.from_bytes(byte_stream, secondary_header_length=len(hdr),
+                                        packet_error_control=True)
+
+    assert new_packet.secondary_header == hdr
+    assert new_packet.data_field == b'hello'
+
+def test_space_packet_error_control_mismatch():
+    byte_stream = bytearray(SpacePacket(data_field=b'hello').as_bytes(packet_error_control=True))
+    byte_stream[-1] ^= 0x01
+
+    with pytest.raises(ValueError):
+        SpacePacket.from_bytes(bytes(byte_stream), packet_error_control=True)
+
+def test_space_packet_error_control_not_stripped_when_not_requested():
+    byte_stream = SpacePacket(data_field=b'hello').as_bytes(packet_error_control=True)
+
+    new_packet = SpacePacket.from_bytes(byte_stream)
+
+    assert len(new_packet.data_field) == len(b'hello') + PACKET_ERROR_CONTROL_LENGTH
+
+def test_space_packet_error_control_iter_packets():
+    first = SpacePacket(apid=1, data_field=b'hello').as_bytes(packet_error_control=True)
+    second = SpacePacket(apid=2, data_field=b'world').as_bytes(packet_error_control=True)
+
+    packets = list(SpacePacket.iter_packets(first + second, packet_error_control=True))
+
+    assert [(p.apid, p.data_field) for p in packets] == [(1, b'hello'), (2, b'world')]

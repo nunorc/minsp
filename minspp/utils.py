@@ -77,6 +77,41 @@ def cuc_as_datetime(cuc_time: bytes, coarse_length: int = CUC_COARSE_LENGTH) -> 
 
     return epoch + timedelta(seconds=seconds + frac_seconds)
 
+CRC16_POLYNOMIAL: int = 0x1021
+"""Generator polynomial of the CRC-16-CCITT, i.e. `x^16 + x^12 + x^5 + 1`."""
+
+CRC16_SEED: int = 0xFFFF
+"""Initial value (seed) of the CRC-16-CCITT."""
+
+def crc16_ccitt(data: bytes, seed: int = CRC16_SEED) -> int:
+    """
+    Computes the CRC-16-CCITT of a byte stream.
+
+    Uses the generator polynomial `x^16 + x^12 + x^5 + 1` seeded with `0xFFFF`,
+    without input or output reflection and without a final XOR, as used by the
+    packet error control field of a space packet. Computed bit by bit, no lookup
+    table involved.
+
+    :param data: The byte stream.
+    :type data: bytes
+    :param seed: Initial value of the CRC, default is `0xFFFF`.
+    :type seed: int
+
+    :return: The CRC value (16 bits).
+    :rtype: int
+    """
+    crc = seed & 0xFFFF
+
+    for byte in data:
+        crc ^= byte << 8
+        for _ in range(8):
+            if crc & 0x8000:
+                crc = ((crc << 1) ^ CRC16_POLYNOMIAL) & 0xFFFF
+            else:
+                crc = (crc << 1) & 0xFFFF
+
+    return crc
+
 MAL_STRING_LENGTH_SIZE: int = 2
 """Number of octets of the length prefix of a MAL variable length string field."""
 

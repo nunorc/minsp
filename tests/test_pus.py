@@ -370,3 +370,17 @@ def test_space_packet_pus_tc_and_pus_tm_are_exclusive():
 
     with pytest.raises(ValueError):
         SpacePacket.from_bytes(space_packet.as_bytes(), pus_tc=True, pus_tm=True)
+
+def test_space_packet_pus_tc_packet_error_control():
+    tc_header = PUSTCHeader(service_type=8, service_subtype=1)
+    space_packet = SpacePacket(type=PacketType.TC, apid=11, secondary_header=tc_header,
+                               data_field=b'\x01\x02')
+
+    bytes1 = space_packet.as_bytes(packet_error_control=True)
+    assert len(bytes1) == 6 + PUS_TC_HEADER_LENGTH + 2 + 2
+
+    packet2 = SpacePacket.from_bytes(bytes1, pus_tc=True, packet_error_control=True)
+
+    assert packet2.secondary_header == tc_header
+    assert packet2.data_field == b'\x01\x02'
+    assert packet2.as_bytes(packet_error_control=True) == bytes1

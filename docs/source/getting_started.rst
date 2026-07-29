@@ -34,6 +34,32 @@ Packets can also be created from a byte stream:
    >>> new_packet.data_field
    b'hello'
 
+The packet data length field delimits the packet, so any octets past the end of
+the packet are ignored. To walk a buffer holding several back to back packets use
+:code:`iter_packets`, which takes the same secondary header arguments as
+:code:`from_bytes`:
+
+.. code-block:: python
+
+   >>> stream = b'\x00\x0b\xc0\x00\x00\x04hello\x00\x0c\xc0\x00\x00\x04world'
+   >>> [(p.apid, p.data_field) for p in SpacePacket.iter_packets(stream)]
+   [(11, b'hello'), (12, b'world')]
+
+The packet data field can end with a packet error control field, the CRC-16-CCITT
+of every preceding octet of the packet, which most missions mandate for
+telecommands. It is opt-in on both sides, and the data length written to the
+primary header accounts for the two extra octets:
+
+.. code-block:: python
+
+   >>> byte_stream = space_packet.as_bytes(packet_error_control=True)
+   >>> byte_stream
+   b'\x00\x0b\xc0\x00\x00\x06hello\x81c'
+   >>> SpacePacket.from_bytes(byte_stream, packet_error_control=True).data_field
+   b'hello'
+
+Decoding verifies the field and strips it, a mismatch raises a :code:`ValueError`.
+
 Secondary header can have a custom data definition, or to use PUS. Telemetry
 packets use the PUS-C (ECSS-E-ST-70-41C) TM secondary header:
 
